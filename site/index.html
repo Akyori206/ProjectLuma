@@ -28,8 +28,8 @@
 html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
 *,*::before,*::after{box-sizing:border-box}
 @keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
-.reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease-out,transform .6s ease-out}
-.reveal.in{opacity:1;transform:none}
+#main .reveal{opacity:0;transform:translateY(18px);transition:opacity .6s ease-out,transform .6s ease-out}
+#main .reveal.in{opacity:1;transform:none}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes popIn{from{opacity:0;transform:scale(.94) translateY(6px)}to{opacity:1;transform:none}}
 @keyframes sheen{0%{background-position:220% 0}100%{background-position:-220% 0}}
@@ -2980,10 +2980,15 @@ function scrollReveal(root){
   if(reducedMotion()||typeof IntersectionObserver==='undefined')return;
   const els=root.querySelectorAll('.panel,.tcard,.kpi,.fi,.cal-c,.dc,.hl,.note,.empty');
   if(!els.length)return;
-  const io=new IntersectionObserver(entries=>{
-    entries.forEach(en=>{en.target.classList.toggle('in',en.isIntersecting)});
-  },{threshold:.1,rootMargin:'0px 0px -60px 0px'});
-  els.forEach(el=>{el.classList.add('reveal');io.observe(el)});
+  els.forEach(el=>el.classList.add('reveal'));
+  /* force the browser to paint the hidden state before we start observing, so elements
+     already in view on first observation still transition in instead of snapping visible */
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    const io=new IntersectionObserver(entries=>{
+      entries.forEach(en=>{en.target.classList.toggle('in',en.isIntersecting)});
+    },{threshold:.1,rootMargin:'0px 0px -60px 0px'});
+    els.forEach(el=>io.observe(el));
+  }));
 }
 function ensureRefs(){
   const live=S.journals.filter(j=>!isBt(j)),ids=live.map(j=>j.id),first=ids[0],d=S.ui.dash,okScope=s=>['live','bt','all'].includes(s)||S.journals.some(j=>j.id===s);
