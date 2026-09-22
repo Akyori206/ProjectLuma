@@ -2984,7 +2984,7 @@ function scrollReveal(root){
   const els=root.querySelectorAll('.panel,.tcard,.kpi,.fi,.cal-c,.dc,.hl,.note,.empty');
   if(!els.length)return;
   const io=new IntersectionObserver(entries=>{
-    entries.forEach(en=>{if(en.isIntersecting){en.target.classList.add('in');io.unobserve(en.target)}});
+    entries.forEach(en=>{en.target.classList.toggle('in',en.isIntersecting)});
   },{threshold:.1,rootMargin:'0px 0px -60px 0px'});
   els.forEach(el=>{el.classList.add('reveal');io.observe(el)});
 }
