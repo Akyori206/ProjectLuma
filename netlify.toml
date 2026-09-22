@@ -1,0 +1,3 @@
+# Netlify publishes only the site/ folder, so the database and function code below are never served publicly.
+[build]
+  publish = "site"
