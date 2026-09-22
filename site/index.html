@@ -39,6 +39,10 @@ html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
 body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.5 var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;position:relative}
 body::before{content:"";position:fixed;inset:-4%;z-index:-3;pointer-events:none;background:radial-gradient(900px 560px at 88% -6%,color-mix(in srgb,var(--accent) 15%,transparent),transparent 62%),radial-gradient(760px 520px at 2% 6%,color-mix(in srgb,var(--accent2) 13%,transparent),transparent 60%),radial-gradient(620px 480px at 60% 108%,color-mix(in srgb,var(--accent) 8%,transparent),transparent 65%),var(--bg);animation:ambientDrift 30s ease-in-out infinite alternate}
 #galaxy{position:fixed;inset:0;z-index:-2;pointer-events:none}
+#bgmedia{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden;display:none}
+#bgmedia.on{display:block}
+#bgmedia img,#bgmedia video{width:100%;height:100%;object-fit:cover;display:block}
+#bgmedia::after{content:"";position:absolute;inset:0;background:color-mix(in srgb,var(--bg) 55%,transparent)}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 h1,h2,h3,h4{margin:0;font-weight:500}
@@ -212,6 +216,7 @@ svg.eq text{fill:var(--ink2);font-size:11px}
 .jt small{color:var(--ink2);font-weight:600}
 .jt.add{color:var(--ink2);border-style:dashed}
 .banner{position:relative;height:190px;border-radius:20px;background-size:cover;background-position:center;overflow:hidden;isolation:isolate;border:1px solid var(--line)}
+.banner-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
 .banner.sm{height:120px}
 .banner::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(4,4,4,.8),rgba(4,4,4,.05) 72%);z-index:1}
 .banner-in{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;align-items:flex-end;gap:16px;padding:18px 22px;color:#fff}
@@ -532,6 +537,7 @@ body.gated #top,body.gated #main,body.gated #tabbar,body.gated #foot{display:non
 </head>
 <body class="gated">
 <canvas id="galaxy" aria-hidden="true"></canvas>
+<div id="bgmedia" aria-hidden="true"></div>
 <header class="topbar" id="top"></header>
 <div id="auth" class="auth" hidden></div>
 <main id="main"></main>
@@ -776,7 +782,7 @@ const eventDate=e=>{const [y,m,d]=e.date.split('-').map(Number);const [hh,mm]=e.
 
 /* ---------- seed ---------- */
 const CONFS=['Higher-timeframe trend','Key level retest','Liquidity sweep','Volume confirmation','Session open drive','Fib 61.8 pullback','News catalyst','Momentum divergence'];
-function defaultSettings(){return{symbol:'NQ',hotkey:'KeyV',wake:'fox',foxSpeak:true,owner:'J Soto',aiParse:true,minBefore:15,newsCountries:['USD'],newsImpact:['high','medium'],accounts:[],keywords:['rate','tariff','CPI']}}
+function defaultSettings(){return{symbol:'NQ',hotkey:'KeyV',wake:'fox',foxSpeak:true,owner:'J Soto',aiParse:true,minBefore:15,newsCountries:['USD'],newsImpact:['high','medium'],accounts:[],keywords:['rate','tariff','CPI'],bg:{type:'galaxy'}}}
 function baseHabits(){return [['Chased entry','#f2766b'],['Moved stop','#f0b04a'],['Oversized','#c084fc'],['Revenge trade','#fb7185'],['Exited early','#60a5fa'],['Ignored plan','#94a3b8']].map((h,i)=>({id:'h'+(i+1),name:h[0],color:h[1]}))}
 function monthStart(d){return iso(new Date(d.getFullYear(),d.getMonth(),1))}
 function newBtJournal(){return{id:'jbt',name:'Backtest Journal',icon:'🧪',accent:'#f5b731',banner:{type:'gradient',value:BANNERS[5]},effect:'grid',layout:'feed',density:'comfortable',kind:'backtest'}}
@@ -1034,16 +1040,23 @@ function dataContext(){
 
 /* ---------- JOURNAL VIEWS (live journals and the backtest journal share these) ---------- */
 function iconHtml(j,size){
+  if(j&&j.iconMediaId)return `<img class="jimg ${j.iconOpaque?'op':''}" data-media="${j.iconMediaId}" alt="" style="height:${size}px;width:${size}px">`;
   if(j&&j.iconImg)return `<img class="jimg ${j.iconOpaque?'op':''}" src="${j.iconImg}" alt="" style="height:${size}px;width:${size}px">`;
   return esc(j?j.icon:'');
 }
 function bannerStyle(j){
   const b=j.banner||{};
+  if(b.mediaId)return '';
   if(b.type==='image'&&b.value)return `background-image:url('${b.value}')`;
   return `background-image:${b.value||BANNERS[0]}`;
 }
+function bannerMediaHtml(j){
+  const b=j.banner||{};
+  if(!b.mediaId)return '';
+  return b.type==='video'?`<video class="banner-media" data-media="${b.mediaId}" autoplay loop muted playsinline></video>`:`<img class="banner-media" data-media="${b.mediaId}" alt="">`;
+}
 function bannerHtml(j,sub,sm){
-  return `<div class="banner ${sm?'sm':''}" style="${bannerStyle(j)}"><div class="fx"></div><div class="banner-act"><button class="btn sm" data-act="cust-open" data-j="${j.id}">${icon('gear')}Customize</button></div><div class="banner-in"><span class="bicon">${iconHtml(j,46)}</span><div><h1>${esc(j.name)}</h1><p class="bsub">${sub}</p></div></div></div>${j.desc?`<p class="jdesc">${esc(j.desc)}</p>`:''}`;
+  return `<div class="banner ${sm?'sm':''}" style="${bannerStyle(j)}">${bannerMediaHtml(j)}<div class="fx"></div><div class="banner-act"><button class="btn sm" data-act="cust-open" data-j="${j.id}">${icon('gear')}Customize</button></div><div class="banner-in"><span class="bicon">${iconHtml(j,46)}</span><div><h1>${esc(j.name)}</h1><p class="bsub">${sub}</p></div></div></div>${j.desc?`<p class="jdesc">${esc(j.desc)}</p>`:''}`;
 }
 function filteredTrades(j){
   let ts=tradesOf(j.id);const u=fs(j);
@@ -2635,6 +2648,8 @@ async function cloudDeleteMedia(id){
 async function mediaSyncAll(){
   if(!cloud.session||!S)return;
   const ids=new Set();S.trades.forEach(t=>{(t.imageIds||[]).forEach(i=>ids.add(i));if(t.videoId)ids.add(t.videoId)});
+  S.journals.forEach(j=>{if(j.iconMediaId)ids.add(j.iconMediaId);if(j.banner&&j.banner.mediaId)ids.add(j.banner.mediaId)});
+  if(S.settings&&S.settings.bg&&S.settings.bg.mediaId)ids.add(S.settings.bg.mediaId);
   for(const id of ids){if(cloud.uploaded.has(id))continue;const b=await media.getLocal(id);if(b)await cloudUploadMedia(id,b)}
 }
 
@@ -2948,7 +2963,10 @@ function themeJournal(){return S.ui.view==='backtest'?btJournal():activeJournal(
 function applyTheme(){
   const j=themeJournal(),root=document.documentElement;
   root.dataset.theme=S.ui.theme;
-  root.style.setProperty('--accent',j.accent);root.style.setProperty('--accent-ink',inkOn(j.accent));
+  const accent=(S.settings&&S.settings.accent)||j.accent;
+  root.style.setProperty('--accent',accent);root.style.setProperty('--accent-ink',inkOn(accent));
+  if(S.settings&&S.settings.accent2)root.style.setProperty('--accent2',S.settings.accent2);
+  else root.style.removeProperty('--accent2');
   document.body.dataset.fx=j.effect||'none';document.body.dataset.density=j.density||'comfortable';
 }
 const NAV=[['dashboard','Dashboard'],['journal','Journal'],['backtest','Backtest'],['habits','Habits'],['news','News']];
@@ -2968,7 +2986,7 @@ function renderTabbar(){
 }
 const copyrightText=()=>SITE_OWNER?`© ${new Date().getFullYear()} ${SITE_OWNER}. All rights reserved.`:'';
 function render(){
-  applyTheme();renderTop();renderTabbar();$('#foot').textContent=copyrightText();
+  applyTheme();applyBackground();renderTop();renderTabbar();$('#foot').textContent=copyrightText();
   if(S.ui.view==='admin'&&!isAdmin())S.ui.view='dashboard';
   const v=S.ui.view,fn={dashboard:vDash,journal:vJournal,backtest:vBacktest,habits:vHabits,news:vNews,admin:vAdmin}[v]||vDash;
   const m=$('#main');m.innerHTML=fn();hydrate(m);
@@ -3017,7 +3035,7 @@ let dlgKind=null,dlgJ=null,dlgLast=null;
 function openDlg(title,html){
   const d=$('#dlg');dlgLast=document.activeElement;
   d.innerHTML=`<div class="dlg-card" role="dialog" aria-modal="true" aria-label="${esc(title)}"><div class="dlg-h"><h3>${esc(title)}</h3><button class="icon-btn" data-act="dlg-close" aria-label="Close">${icon('x')}</button></div><div class="dlg-b" id="dlgb">${html}</div></div>`;
-  d.hidden=false;const b=$('[data-act=dlg-close]',d);if(b)b.focus();
+  d.hidden=false;hydrate(d);const b=$('[data-act=dlg-close]',d);if(b)b.focus();
 }
 function closeDlg(quiet){
   const d=$('#dlg');if(d.hidden)return;
@@ -3029,22 +3047,30 @@ function custHtml(j){
   return `<div class="fields" style="grid-template-columns:2fr 1fr"><label class="f">Journal name<input data-cf="name" ${d} value="${esc(j.name)}"></label><label class="f">Icon<input data-cf="icon" ${d} value="${esc(j.icon)}" maxlength="4"></label></div>
   <label class="f">Description<textarea data-cf="desc" ${d} maxlength="400" placeholder="What is this journal for? It shows under the banner." style="min-height:72px">${esc(j.desc||'')}</textarea></label>
   <div class="opt">${EMOJI.map(e=>`<button class="chip ${j.icon===e?'on':''}" data-act="emoji" data-e="${e}" ${d} aria-label="Use ${e} as icon">${e}</button>`).join('')}</div>
-  <div><h4 class="sec-h">Icon image</h4><div class="row"><label class="btn sm">Upload icon image<input type="file" accept="image/*" hidden data-cf="iconimg" ${d}></label>${j.iconImg?`<span class="row" style="gap:10px">${iconHtml(j,36)}<button class="btn ghost sm" data-act="icon-clear" ${d}>Use emoji instead</button></span>`:''}</div><p class="hint" style="margin:6px 0 0">A PNG with a transparent background shows just your logo, with no box behind it.</p></div>
+  <div><h4 class="sec-h">Icon image</h4><div class="row"><label class="btn sm">Upload icon image<input type="file" accept="image/*" hidden data-cf="iconimg" ${d}></label>${j.iconImg||j.iconMediaId?`<span class="row" style="gap:10px">${iconHtml(j,36)}<button class="btn ghost sm" data-act="icon-clear" ${d}>Use emoji instead</button></span>`:''}</div><p class="hint" style="margin:6px 0 0">A PNG with a transparent background shows just your logo, with no box behind it. Animated GIF and WEBP icons play as uploaded.</p></div>
   <div><h4 class="sec-h">Accent color</h4><div class="row"><div class="sw">${ACCENTS.map(c=>`<button style="background:${c}" data-act="set-accent" data-c="${c}" ${d} aria-pressed="${j.accent===c}" aria-label="Accent ${c}"></button>`).join('')}</div><input type="color" data-cf="accent" ${d} value="${esc(j.accent)}" aria-label="Custom accent color"></div></div>
   <div><h4 class="sec-h">Banner</h4><div class="bn">${BANNERS.map((b,i)=>`<button style="background:${b}" data-act="set-banner" data-i="${i}" ${d} aria-pressed="${j.banner.type==='gradient'&&j.banner.value===b}" aria-label="Banner style ${i+1}"></button>`).join('')}</div>
-   <div class="row" style="margin-top:10px"><label class="btn sm">Upload banner image<input type="file" accept="image/*" hidden data-cf="banner" ${d}></label>${j.banner.type==='image'?`<button class="btn ghost sm" data-act="banner-clear" ${d}>Use a gradient instead</button>`:''}</div></div>
+   <div class="row" style="margin-top:10px"><label class="btn sm">Upload banner image or video<input type="file" accept="image/*,video/*" hidden data-cf="banner" ${d}></label>${j.banner.type==='image'||j.banner.type==='video'?`<button class="btn ghost sm" data-act="banner-clear" ${d}>Use a gradient instead</button>`:''}</div>
+   <p class="hint" style="margin:6px 0 0">Animated GIF/WEBP images and short video clips (muted, looping) both work.</p></div>
   <div><h4 class="sec-h">Background effect</h4><div class="seg" role="group" aria-label="Effect">${EFFECTS.map(e=>`<button data-act="set-effect" data-e="${e[0]}" ${d} aria-pressed="${j.effect===e[0]}">${e[1]}</button>`).join('')}</div></div>
   <div><h4 class="sec-h">Card density</h4><div class="seg" role="group" aria-label="Density"><button data-act="set-density" data-d="comfortable" ${d} aria-pressed="${j.density!=='compact'}">Comfortable</button><button data-act="set-density" data-d="compact" ${d} aria-pressed="${j.density==='compact'}">Compact</button></div></div>
   <div class="row" style="justify-content:space-between;border-top:1px solid var(--line);padding-top:16px"><span class="hint">Changes save as you make them.</span><button class="btn danger" data-act="del-journal" ${d}>Delete this journal</button></div>`;
 }
 function openCust(jid){const j=S.journals.find(x=>x.id===jid);if(!j)return;dlgKind='cust';dlgJ=jid;openDlg(`Customize ${j.name}`,custHtml(j))}
-function drawCust(){const j=S.journals.find(x=>x.id===dlgJ);const b=$('#dlgb');if(j&&b&&dlgKind==='cust'){b.innerHTML=custHtml(j);applyTheme();render()}}
+function drawCust(){const j=S.journals.find(x=>x.id===dlgJ);const b=$('#dlgb');if(j&&b&&dlgKind==='cust'){b.innerHTML=custHtml(j);hydrate(b);applyTheme();render()}}
+function drawSettings(){const b=$('#dlgb');if(b&&dlgKind==='settings')b.innerHTML=settingsHtml()}
 function settingsHtml(){
   const enc=!!S.settings.apiKeyEnc,plain=S.settings.apiKey,k=enc||!!plain,locked=aiSource==='locked';
   const srcTxt=aiSource==='claude'?'Connected through Claude.':aiSource==='key'?(enc?'Connected with your API key, unlocked for this session.':'Connected with your API key.'):locked?'Your API key is saved but locked. Enter your password to unlock it.':'Not connected. Quick answers from your own numbers still work.';
   const n=esc(wakeName());
   return `${cloud.session?`<div><h4 class="sec-h">Account</h4><p class="hint" style="margin:0 0 10px">Signed in as ${esc(cloud.session.user.email||'')}. ${esc(syncText())}</p><div class="row"><button class="btn" data-act="account-open">Account and sync</button></div></div>`:''}
-  <div><h4 class="sec-h">Appearance</h4><div class="seg" role="group" aria-label="Theme"><button data-act="set-theme" data-t="dark" aria-pressed="${S.ui.theme==='dark'}">Dark</button><button data-act="set-theme" data-t="light" aria-pressed="${S.ui.theme==='light'}">Light</button></div></div>
+  <div><h4 class="sec-h">Appearance</h4><div class="seg" role="group" aria-label="Theme"><button data-act="set-theme" data-t="dark" aria-pressed="${S.ui.theme==='dark'}">Dark</button><button data-act="set-theme" data-t="light" aria-pressed="${S.ui.theme==='light'}">Light</button></div>
+   <div class="row" style="margin-top:14px"><label class="f">Button and accent color<input type="color" data-cf="app-accent" value="${esc(S.settings.accent||themeJournal().accent)}" aria-label="Accent color"></label><label class="f">Accent gradient (2nd color)<input type="color" data-cf="app-accent2" value="${esc(S.settings.accent2||'#8b5cf6')}" aria-label="Secondary accent color"></label></div>
+   <p class="hint" style="margin:8px 0 0">This sets the app-wide button and highlight color, on top of any per-journal accent.</p></div>
+  <div><h4 class="sec-h">Background</h4><p class="hint" style="margin:0 0 10px">The animated galaxy is the default. Swap it for your own still image or a looping video.</p>
+   <div class="row"><button class="btn sm ${(!S.settings.bg||S.settings.bg.type==='galaxy')?'primary':''}" data-act="bg-galaxy" aria-pressed="${!S.settings.bg||S.settings.bg.type==='galaxy'}">Galaxy (default)</button><label class="btn sm">Upload image<input type="file" accept="image/*" hidden data-cf="bgimage"></label><label class="btn sm">Upload video<input type="file" accept="video/*" hidden data-cf="bgvideo"></label></div>
+   ${S.settings.bg&&S.settings.bg.type!=='galaxy'&&S.settings.bg.mediaId?`<p class="hint" style="margin:8px 0 0">Using a custom ${S.settings.bg.type} background.</p>`:''}</div>
+  <div class="row"><button class="btn ghost" data-act="appearance-reset">Revert appearance to default</button></div>
   <div><h4 class="sec-h">Luma's voice</h4><p class="hint" style="margin:0 0 10px">Turn Luma on from the Backtest tab and say “Hey Luma”. She picks a female voice automatically. If yours sounds off, choose another one here. Chrome and Edge support always-on listening.</p>
    <div class="row"><label class="f" style="min-width:240px">Voice<select data-in="voice-name"><option value="">Automatic (female)</option>${englishVoices().map(v=>`<option value="${esc(v.name)}" ${S.settings.voiceName===v.name?'selected':''}>${esc(v.name)}</option>`).join('')}</select></label><button class="btn" data-act="voice-test" style="align-self:flex-end">Test voice</button></div>
    <div class="row" style="margin-top:12px"><span class="muted">Spoken replies</span><div class="seg" role="group" aria-label="Spoken replies"><button data-act="fox-speak" data-v="1" aria-pressed="${S.settings.foxSpeak!==false}">On</button><button data-act="fox-speak" data-v="0" aria-pressed="${S.settings.foxSpeak===false}">Off</button></div></div></div>
@@ -3085,13 +3111,21 @@ const A={
   'settings-open':()=>{dlgKind='settings';openDlg('Settings',settingsHtml())},
   'dlg-close':()=>closeDlg(),
   'set-theme':el=>{S.ui.theme=el.dataset.t;persist();applyTheme();if(dlgKind==='settings'){$('#dlgb').innerHTML=settingsHtml()}render()},
+  'bg-galaxy':()=>{const old=S.settings.bg&&S.settings.bg.mediaId;S.settings.bg={type:'galaxy'};if(old)media.del(old);persist();applyBackground();drawSettings()},
+  'appearance-reset':async()=>{
+    if(!await ask('Revert appearance to default?',{confirmOnly:true,message:'This resets the app accent colors and background back to the defaults. Per-journal customization (icons, banners) is not affected.',okLabel:'Revert'}))return;
+    const old=S.settings.bg&&S.settings.bg.mediaId;
+    delete S.settings.accent;delete S.settings.accent2;S.settings.bg={type:'galaxy'};
+    if(old)media.del(old);
+    persist();applyTheme();applyBackground();drawSettings();render();
+  },
   'set-accent':el=>{jFrom(el).accent=el.dataset.c;persist();drawCust()},
-  'set-banner':el=>{jFrom(el).banner={type:'gradient',value:BANNERS[Number(el.dataset.i)]};persist();drawCust()},
-  'banner-clear':el=>{jFrom(el).banner={type:'gradient',value:BANNERS[0]};persist();drawCust()},
+  'set-banner':el=>{const j=jFrom(el),old=j.banner&&j.banner.mediaId;j.banner={type:'gradient',value:BANNERS[Number(el.dataset.i)]};if(old)media.del(old);persist();drawCust()},
+  'banner-clear':el=>{const j=jFrom(el),old=j.banner&&j.banner.mediaId;j.banner={type:'gradient',value:BANNERS[0]};if(old)media.del(old);persist();drawCust()},
   'set-effect':el=>{jFrom(el).effect=el.dataset.e;persist();drawCust()},
   'set-density':el=>{jFrom(el).density=el.dataset.d;persist();drawCust()},
-  emoji:el=>{const j=jFrom(el);j.icon=el.dataset.e;j.iconImg='';persist();drawCust()},
-  'icon-clear':el=>{const j=jFrom(el);j.iconImg='';j.iconOpaque=false;persist();drawCust()},
+  emoji:el=>{const j=jFrom(el),old=j.iconMediaId;j.icon=el.dataset.e;j.iconImg='';j.iconMediaId='';if(old)media.del(old);persist();drawCust()},
+  'icon-clear':el=>{const j=jFrom(el),old=j.iconMediaId;j.iconImg='';j.iconMediaId='';j.iconOpaque=false;if(old)media.del(old);persist();drawCust()},
   'export-csv':exportCSV,
   'export-json':()=>{const c=JSON.parse(JSON.stringify(S));if(c.settings){delete c.settings.apiKey;delete c.settings.apiKeyEnc}saveFile('projectluma-backup.json',JSON.stringify(c,null,2))},
   'del-journal':async el=>{
@@ -3283,20 +3317,74 @@ async function importJsonBackup(file){
   if(!await ask('Replace everything with this backup?',{confirmOnly:true,message:`It contains ${data.journals.length} journals and ${data.trades.length} trades. Your current data will be replaced. Screenshots and videos are not part of a backup.`,okLabel:'Replace',danger:true}))return;
   const k=S.settings?{apiKey:S.settings.apiKey,apiKeyEnc:S.settings.apiKeyEnc}:{};S=data;S.settings=S.settings||{};delete S.settings.apiKey;delete S.settings.apiKeyEnc;if(k.apiKey)S.settings.apiKey=k.apiKey;if(k.apiKeyEnc)S.settings.apiKeyEnc=k.apiKeyEnc;normalize();persist();closeDlg(true);render();toast('Backup restored.');
 }
+const ANIM_IMG=t=>t==='image/gif'||t==='image/webp';
+function scanTransparency(file){
+  return new Promise(res=>{
+    const img=new Image(),u=URL.createObjectURL(file);
+    img.onload=()=>{
+      try{
+        const c=document.createElement('canvas');c.width=Math.min(64,img.width||64);c.height=Math.min(64,img.height||64);
+        const x=c.getContext('2d');x.drawImage(img,0,0,c.width,c.height);
+        const d=x.getImageData(0,0,c.width,c.height).data;
+        let transparent=false;for(let i=3;i<d.length;i+=4){if(d[i]<245){transparent=true;break}}
+        URL.revokeObjectURL(u);res(transparent);
+      }catch(e){URL.revokeObjectURL(u);res(false)}
+    };
+    img.onerror=()=>{URL.revokeObjectURL(u);res(false)};
+    img.src=u;
+  });
+}
 function custField(el,type){
   const f=el.dataset.cf;
   if(f==='importjson'){if(type==='change'&&el.files[0])importJsonBackup(el.files[0]);return}
   if(f==='iconimg'){
-    if(type==='change'&&el.files[0]){const j=jFrom(el);processIcon(el.files[0]).then(r=>{j.iconImg=r.url;j.iconOpaque=!r.transparent;persist();drawCust()}).catch(()=>toast('That image could not be read.'))}
+    if(type==='change'&&el.files[0]){
+      const file=el.files[0],j=jFrom(el);
+      if(ANIM_IMG(file.type)){
+        scanTransparency(file).then(async transparent=>{
+          const id=uid('img');await media.put(id,file);
+          j.iconMediaId=id;j.iconImg='';j.iconOpaque=!transparent;persist();drawCust();
+        }).catch(()=>toast('That image could not be read.'));
+      }else{
+        processIcon(file).then(r=>{j.iconMediaId='';j.iconImg=r.url;j.iconOpaque=!r.transparent;persist();drawCust()}).catch(()=>toast('That image could not be read.'));
+      }
+    }
     return;
   }
   if(f==='import'){
     if(type==='change'&&el.files[0]){const r=new FileReader();r.onload=()=>importCSV(String(r.result));r.readAsText(el.files[0])}
     return;
   }
+  if(f==='app-accent'){
+    if(type==='input'||type==='change'){S.settings.accent=el.value;applyTheme();if(type==='change'){persist();drawSettings()}else saveSoon()}
+    return;
+  }
+  if(f==='app-accent2'){
+    if(type==='input'||type==='change'){S.settings.accent2=el.value;applyTheme();if(type==='change'){persist();drawSettings()}else saveSoon()}
+    return;
+  }
+  if(f==='bgimage'||f==='bgvideo'){
+    if(type==='change'&&el.files[0]){
+      const file=el.files[0],id=uid('img'),old=S.settings.bg&&S.settings.bg.mediaId;
+      media.put(id,file).then(()=>{
+        S.settings.bg={type:f==='bgvideo'?'video':'image',mediaId:id};
+        if(old)media.del(old);
+        persist();applyBackground();drawSettings();
+      }).catch(()=>toast('That file could not be saved.'));
+    }
+    return;
+  }
   const j=jFrom(el);
   if(f==='banner'){
-    if(type==='change'&&el.files[0])toJpeg(el.files[0],1600,.8).then(blobToDataUrl).then(u=>{j.banner={type:'image',value:u};persist();drawCust()}).catch(()=>toast('That image could not be read.'));
+    if(type==='change'&&el.files[0]){
+      const file=el.files[0];
+      if(file.type.startsWith('video/')||ANIM_IMG(file.type)){
+        const id=uid('img'),old=j.banner&&j.banner.mediaId;
+        media.put(id,file).then(()=>{j.banner={type:file.type.startsWith('video/')?'video':'image',mediaId:id};if(old)media.del(old);persist();drawCust()}).catch(()=>toast('That file could not be saved.'));
+      }else{
+        toJpeg(file,1600,.8).then(blobToDataUrl).then(u=>{j.banner={type:'image',value:u};persist();drawCust()}).catch(()=>toast('That image could not be read.'));
+      }
+    }
     return;
   }
   if(f==='name'){j.name=el.value||'Untitled';saveSoon();if(type==='change')drawCust()}
@@ -3392,11 +3480,12 @@ function hardenInputs(root){
     });
   }catch(e){}
 }
-/* ---------- ambient galaxy background ---------- */
-(function initGalaxy(){
-  const cv=document.getElementById('galaxy');if(!cv||!cv.getContext)return;
+/* ---------- ambient galaxy background (default; can be swapped for a custom image/video in Settings) ---------- */
+const galaxyFX=(()=>{
+  const cv=document.getElementById('galaxy');
+  if(!cv||!cv.getContext)return{start(){},stop(){}};
   const ctx=cv.getContext('2d');
-  let w=0,h=0,dots=[],glows=[],reduced=false;
+  let w=0,h=0,dots=[],glows=[],reduced=false,running=false,raf=null;
   try{reduced=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
   const tint=()=>{
     const s=getComputedStyle(document.documentElement);
@@ -3415,6 +3504,7 @@ function hardenInputs(root){
   }
   let t=0;
   function frame(){
+    if(!running)return;
     t+=0.012;
     ctx.clearRect(0,0,w,h);
     for(const g of glows){
@@ -3429,13 +3519,32 @@ function hardenInputs(root){
       ctx.arc(d.x,d.y,d.r,0,Math.PI*2);ctx.fill();
       if(!reduced){d.y+=d.sp*.06;d.x+=d.drift;if(d.y>h+2)d.y=-2;if(d.x<-2)d.x=w+2;if(d.x>w+2)d.x=-2}
     }
-    if(!reduced)requestAnimationFrame(frame);
+    if(!reduced)raf=requestAnimationFrame(frame);
   }
-  addEventListener('resize',resize,{passive:true});
-  resize();frame();
+  addEventListener('resize',()=>{if(running)resize()},{passive:true});
+  return{
+    start(){cv.style.display='';if(running)return;running=true;resize();frame()},
+    stop(){running=false;if(raf)cancelAnimationFrame(raf);raf=null;cv.style.display='none'}
+  };
 })();
+async function applyBackground(){
+  const bg=(S&&S.settings&&S.settings.bg)||{type:'galaxy'};
+  const host=$('#bgmedia');
+  if(bg.type==='galaxy'||!bg.mediaId){
+    galaxyFX.start();
+    if(host){host.classList.remove('on');host.innerHTML=''}
+    return;
+  }
+  galaxyFX.stop();
+  if(!host)return;
+  const u=await media.url(bg.mediaId);
+  if(!u){host.classList.remove('on');host.innerHTML='';return}
+  host.innerHTML=bg.type==='video'?`<video src="${u}" autoplay loop muted playsinline></video>`:`<img src="${u}" alt="">`;
+  host.classList.add('on');
+}
 (async function init(){
   try{if(window.speechSynthesis)speechSynthesis.onvoiceschanged=()=>{if(dlgKind==='settings'&&$('#dlgb'))$('#dlgb').innerHTML=settingsHtml()}}catch(e){}
+  galaxyFX.start();
   await media.open();
   try{if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{})}catch(e){}
   hardenInputs(document);
