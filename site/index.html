@@ -35,7 +35,8 @@ html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes breathe{0%,100%{transform:scale(1);box-shadow:0 10px 30px color-mix(in srgb,var(--accent) 30%,transparent)}50%{transform:scale(1.06);box-shadow:0 10px 38px color-mix(in srgb,var(--accent) 48%,transparent)}}
 body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.5 var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;position:relative}
-body::before{content:"";position:fixed;inset:-4%;z-index:-2;pointer-events:none;background:radial-gradient(900px 520px at 88% -6%,color-mix(in srgb,var(--accent) 13%,transparent),transparent 62%),radial-gradient(700px 460px at 4% 0%,color-mix(in srgb,var(--accent2) 12%,transparent),transparent 60%),linear-gradient(color-mix(in srgb,var(--ink) 3%,transparent) 1px,transparent 1px) 0 0/100% 42px,var(--bg);animation:ambientDrift 26s ease-in-out infinite alternate}
+body::before{content:"";position:fixed;inset:-4%;z-index:-3;pointer-events:none;background:radial-gradient(900px 560px at 88% -6%,color-mix(in srgb,var(--accent) 15%,transparent),transparent 62%),radial-gradient(760px 520px at 2% 6%,color-mix(in srgb,var(--accent2) 13%,transparent),transparent 60%),radial-gradient(620px 480px at 60% 108%,color-mix(in srgb,var(--accent) 8%,transparent),transparent 65%),var(--bg);animation:ambientDrift 30s ease-in-out infinite alternate}
+#galaxy{position:fixed;inset:0;z-index:-2;pointer-events:none}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 h1,h2,h3,h4{margin:0;font-weight:500}
@@ -531,6 +532,7 @@ body.gated #top,body.gated #main,body.gated #tabbar,body.gated #foot{display:non
 </style>
 </head>
 <body class="gated">
+<canvas id="galaxy" aria-hidden="true"></canvas>
 <header class="topbar" id="top"></header>
 <div id="auth" class="auth" hidden></div>
 <main id="main"></main>
@@ -3368,6 +3370,48 @@ function hardenInputs(root){
     });
   }catch(e){}
 }
+/* ---------- ambient galaxy background ---------- */
+(function initGalaxy(){
+  const cv=document.getElementById('galaxy');if(!cv||!cv.getContext)return;
+  const ctx=cv.getContext('2d');
+  let w=0,h=0,dots=[],glows=[],reduced=false;
+  try{reduced=matchMedia('(prefers-reduced-motion: reduce)').matches}catch(e){}
+  const tint=()=>{
+    const s=getComputedStyle(document.documentElement);
+    return [s.getPropertyValue('--accent').trim()||'#3b82f6',s.getPropertyValue('--accent2').trim()||'#8b5cf6'];
+  };
+  function resize(){
+    w=cv.width=innerWidth;h=cv.height=innerHeight;
+    const [c1,c2]=tint();
+    const n=Math.min(150,Math.max(60,Math.floor((w*h)/12000)));
+    dots=Array.from({length:n},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*1.2+.4,base:Math.random()*.5+.25,ph:Math.random()*Math.PI*2,sp:Math.random()*.4+.15,color:Math.random()<.72?'255,255,255':(Math.random()<.5?hex2rgb(c1):hex2rgb(c2)),drift:(Math.random()-.5)*.05}));
+    glows=Array.from({length:6},()=>({x:Math.random()*w,y:Math.random()*h,r:Math.random()*90+70,ph:Math.random()*Math.PI*2,color:Math.random()<.5?hex2rgb(c1):hex2rgb(c2)}));
+  }
+  function hex2rgb(hex){
+    const m=/^#?([0-9a-f]{6})$/i.exec(hex||'');if(!m)return'120,170,255';
+    const n=parseInt(m[1],16);return `${n>>16&255},${n>>8&255},${n&255}`;
+  }
+  let t=0;
+  function frame(){
+    t+=0.012;
+    ctx.clearRect(0,0,w,h);
+    for(const g of glows){
+      const a=.05+Math.sin(t*.3+g.ph)*.025;
+      const grad=ctx.createRadialGradient(g.x,g.y,0,g.x,g.y,g.r);
+      grad.addColorStop(0,`rgba(${g.color},${Math.max(a,0)})`);grad.addColorStop(1,'rgba(0,0,0,0)');
+      ctx.fillStyle=grad;ctx.fillRect(g.x-g.r,g.y-g.r,g.r*2,g.r*2);
+    }
+    for(const d of dots){
+      const tw=.5+.5*Math.sin(t*d.sp*4+d.ph);
+      ctx.beginPath();ctx.fillStyle=`rgba(${d.color},${(d.base+tw*.5).toFixed(3)})`;
+      ctx.arc(d.x,d.y,d.r,0,Math.PI*2);ctx.fill();
+      if(!reduced){d.y+=d.sp*.06;d.x+=d.drift;if(d.y>h+2)d.y=-2;if(d.x<-2)d.x=w+2;if(d.x>w+2)d.x=-2}
+    }
+    if(!reduced)requestAnimationFrame(frame);
+  }
+  addEventListener('resize',resize,{passive:true});
+  resize();frame();
+})();
 (async function init(){
   try{if(window.speechSynthesis)speechSynthesis.onvoiceschanged=()=>{if(dlgKind==='settings'&&$('#dlgb'))$('#dlgb').innerHTML=settingsHtml()}}catch(e){}
   await media.open();
