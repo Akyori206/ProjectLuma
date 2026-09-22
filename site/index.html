@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>ProjectLuma</title>
 <meta name="description" content="ProjectLuma: a next-gen trading terminal — journal, backtest replay, voice-driven review and a live P&L calendar, all in one dark cockpit.">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2322e6ff'/%3E%3Cstop offset='1' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%2305070d'/%3E%3Cpath d='M12 44l14-16 10 8 16-20' fill='none' stroke='url(%23g)' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2322e6ff'/%3E%3Cstop offset='1' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3Cmask id='m'%3E%3Crect width='64' height='64' fill='white'/%3E%3Ccircle cx='26' cy='26' r='14' fill='black'/%3E%3C/mask%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%2305070d'/%3E%3Ccircle cx='34' cy='32' r='17' fill='url(%23g)' mask='url(%23m)'/%3E%3Ccircle cx='47' cy='15' r='2.6' fill='url(%23g)'/%3E%3Ccircle cx='40' cy='10' r='1.3' fill='url(%23g)' opacity='.7'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -15,14 +15,14 @@
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
   --bg:#05070d;--panel:#0b0f1c;--panel2:#101528;--raised:#161d33;--line:#1b2236;--line2:#2a3454;--ink:#eef2ff;--ink2:#8891ae;
-  --win:#2ee89b;--loss:#ff4d6d;--amber:#ffb020;--accent:#22e6ff;--accent2:#8b5cf6;--accent-ink:#031017;
+  --win:#3b82f6;--loss:#ff4d6d;--amber:#ffb020;--accent:#22e6ff;--accent2:#8b5cf6;--accent-ink:#031017;
   --shadow:0 18px 50px rgba(0,0,0,.6);
   --glow:0 0 24px color-mix(in srgb,var(--accent) 45%,transparent);
   --display:'Space Grotesk','Inter',system-ui,sans-serif;--sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--mono:'JetBrains Mono',ui-monospace,'SF Mono',Consolas,monospace;
 }
 :root[data-theme=light]{
   --bg:#eef1f8;--panel:#ffffff;--panel2:#f7f9fd;--raised:#eef1f9;--line:#dbe1ef;--line2:#c3ccdf;--ink:#0b1020;--ink2:#5b6480;
-  --win:#0a9566;--loss:#d6294a;--amber:#a86412;--accent:#0891b2;--accent2:#6d28d9;--accent-ink:#ffffff;--shadow:0 18px 50px rgba(20,30,60,.14);
+  --win:#2563eb;--loss:#d6294a;--amber:#a86412;--accent:#0891b2;--accent2:#6d28d9;--accent-ink:#ffffff;--shadow:0 18px 50px rgba(20,30,60,.14);
   --glow:0 0 24px color-mix(in srgb,var(--accent) 18%,transparent);
 }
 html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
@@ -33,6 +33,7 @@ html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px)}
 @keyframes sheen{0%{background-position:220% 0}100%{background-position:-220% 0}}
 @keyframes ambientDrift{from{transform:translate3d(-2%,-1%,0) scale(1.02)}to{transform:translate3d(2%,1%,0) scale(1.02)}}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes breathe{0%,100%{transform:scale(1);box-shadow:0 10px 30px color-mix(in srgb,var(--accent) 30%,transparent)}50%{transform:scale(1.06);box-shadow:0 10px 38px color-mix(in srgb,var(--accent) 48%,transparent)}}
 body{margin:0;background:var(--bg);color:var(--ink);font:14.5px/1.5 var(--sans);font-variant-numeric:tabular-nums;-webkit-font-smoothing:antialiased;position:relative}
 body::before{content:"";position:fixed;inset:-4%;z-index:-2;pointer-events:none;background:radial-gradient(900px 520px at 88% -6%,color-mix(in srgb,var(--accent) 13%,transparent),transparent 62%),radial-gradient(700px 460px at 4% 0%,color-mix(in srgb,var(--accent2) 12%,transparent),transparent 60%),linear-gradient(color-mix(in srgb,var(--ink) 3%,transparent) 1px,transparent 1px) 0 0/100% 42px,var(--bg);animation:ambientDrift 26s ease-in-out infinite alternate}
 button,input,select,textarea{font:inherit;color:inherit}
@@ -50,8 +51,7 @@ a{color:var(--accent)}
 .topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;display:flex;align-items:center;gap:16px;padding:12px clamp(14px,2.4vw,32px);background:color-mix(in srgb,var(--bg) 86%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);overflow:hidden}
 .topbar::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--accent) 45%,var(--accent2) 55%,transparent);background-size:60% 100%;opacity:.7;animation:sheen 7s linear infinite}
 .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:19px;font-weight:600;letter-spacing:-.01em;white-space:nowrap}
-.brand i{width:22px;height:22px;border-radius:7px;background:conic-gradient(from 210deg,var(--accent),var(--accent2),var(--accent));display:block;position:relative;filter:drop-shadow(0 0 8px color-mix(in srgb,var(--accent) 65%,transparent))}
-.brand i::after{content:"";position:absolute;inset:6px;border-radius:3px;background:var(--bg)}
+.brand-ic{width:24px;height:24px;flex:none;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--accent) 55%,transparent))}
 .tabs{display:flex;gap:2px;margin-left:8px;padding-left:16px;border-left:1px solid var(--line)}
 .tab{position:relative;display:flex;align-items:center;gap:8px;border:0;background:none;color:var(--ink2);padding:8px 13px;border-radius:10px;font-weight:600;font-size:14px;transition:color .15s,background .15s}
 .tab:hover{color:var(--ink);background:var(--panel)}
@@ -70,9 +70,15 @@ a{color:var(--accent)}
 .pl-chip{font-family:var(--display);font-size:14px}
 [data-act="settings-open"]:hover .ic{animation:spin .5s ease}
 .tabbar{display:none}
+.orb{position:fixed;right:22px;bottom:calc(22px + env(safe-area-inset-bottom,0px));z-index:70;width:56px;height:56px;border-radius:50%;border:0;padding:0;background:none;display:grid;place-items:center;transition:transform .15s}
+.orb:hover{transform:scale(1.08)}
+.orb-bubble{width:100%;height:100%;border-radius:50%;background:linear-gradient(135deg,var(--accent),var(--accent2));color:var(--accent-ink);display:grid;place-items:center;animation:breathe 3.6s ease-in-out infinite}
+.orb .ic{width:23px;height:23px}
+body.gated .orb{display:none}
+@media (max-width:900px){.orb{right:14px;bottom:calc(70px + env(safe-area-inset-bottom,0px))}}
 
 #main{min-width:0;padding-bottom:60px}
-.page{padding:22px clamp(14px,2.4vw,32px) 8px;max-width:1500px;margin:0 auto;animation:fadeUp .35s cubic-bezier(.16,1,.3,1) both}
+.page{padding:22px clamp(14px,2.4vw,32px) 8px;max-width:1500px;margin:0 auto;animation:fadeUp .4s cubic-bezier(.16,1,.3,1) both}
 .page-h{margin-bottom:18px}
 .page-h h1{font-size:clamp(24px,3vw,32px);line-height:1.15}
 .page-h p{margin:6px 0 0;color:var(--ink2);max-width:64ch}
@@ -168,7 +174,7 @@ svg.eq text{fill:var(--ink2);font-size:11px}
 .kt tr:last-child td{border-bottom:0}
 .kt .r,.kt th.r{text-align:right}
 .tbl-scroll{overflow-x:auto;animation:fadeIn .4s ease both}
-.meter{position:relative;height:6px;border-radius:6px;background:linear-gradient(90deg,#ff5d52,#f5b731 52%,#3ddc84);min-width:110px}
+.meter{position:relative;height:6px;border-radius:6px;background:linear-gradient(90deg,#ff5d52,#f5b731 52%,#3b82f6);min-width:110px}
 .meter i{position:absolute;top:50%;width:13px;height:13px;border-radius:50%;background:var(--bg);border:2px solid var(--ink);transform:translate(-50%,-50%)}
 .edge{font-weight:700;font-size:13px}
 .bars{display:grid;gap:10px}
@@ -236,7 +242,7 @@ body[data-density=compact] .cards{grid-template-columns:repeat(auto-fill,minmax(
 .tthumb{position:relative;aspect-ratio:16/10;background:#0b1114}
 .tthumb img{width:100%;height:100%;object-fit:cover;display:block}
 .tthumb .badge{position:absolute;left:10px;top:10px;background:rgba(6,6,6,.8);color:#fff}
-.tthumb .badge.win{color:#3ddc84}.tthumb .badge.loss{color:#ff5d52}
+.tthumb .badge.win{color:#3b82f6}.tthumb .badge.loss{color:#ff5d52}
 .tdir{position:absolute;right:10px;top:10px;font-size:12px;background:rgba(6,6,6,.8);color:#fff;border-radius:6px;padding:2px 8px}
 .tinfo{padding:12px 14px 14px}
 .trow{display:flex;justify-content:space-between;align-items:baseline}
@@ -532,6 +538,7 @@ body.gated #top,body.gated #main,body.gated #tabbar,body.gated #foot{display:non
 <nav class="tabbar" id="tabbar" aria-label="Primary"></nav>
 <div id="scrim" class="scrim" hidden></div>
 <div id="panel" class="sheet" role="dialog" aria-modal="true" aria-label="Trade details" hidden></div>
+<button id="lumaorb" class="orb" data-act="chat-open" aria-label="Open Luma, your assistant"><span class="orb-bubble"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/></svg></span></button>
 <aside id="drawer" role="dialog" aria-label="Luma, your assistant">
   <div class="d-h"><h3>Luma</h3><button class="btn ghost sm" data-act="chat-clear">Clear</button><button class="icon-btn" data-act="chat-close" aria-label="Close assistant"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
   <div id="chatlog" aria-live="polite"></div>
@@ -581,6 +588,7 @@ spark:'<path d="M12 3l2 5 5 2-5 2-2 5-2-5-5-2 5-2z"/>',
 sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5L19 19M19 5l-1.5 1.5M6.5 17.5L5 19"/>'
 };
 const icon=n=>`<svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${IC[n]}</svg>`;
+const logoSvg=(k='a')=>`<svg class="brand-ic" viewBox="0 0 64 64" aria-hidden="true"><defs><linearGradient id="lg${k}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="var(--accent)"/><stop offset="1" stop-color="var(--accent2)"/></linearGradient><mask id="lm${k}"><rect width="64" height="64" fill="#fff"/><circle cx="26" cy="26" r="14" fill="#000"/></mask></defs><circle cx="34" cy="32" r="17" fill="url(#lg${k})" mask="url(#lm${k})"/><circle cx="47" cy="15" r="2.6" fill="url(#lg${k})"/><circle cx="40" cy="10" r="1.3" fill="url(#lg${k})" opacity=".7"/></svg>`;
 
 function md(src){
   const inl=t=>esc(t).replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
@@ -609,7 +617,7 @@ const BANNERS=[
 'linear-gradient(120deg,#0c2461,#1e3799 50%,#4a69bd)',
 'linear-gradient(120deg,#42275a,#a0658e)',
 'linear-gradient(135deg,#f6d365,#fda085)'];
-const ACCENTS=['#22e6ff','#8b5cf6','#2ee89b','#ffb020','#fb5f8a','#c084fc','#38bdf8','#5eead4'];
+const ACCENTS=['#22e6ff','#8b5cf6','#3b82f6','#ffb020','#fb5f8a','#c084fc','#60a5fa','#5eead4'];
 const EMOJI=['📈','📊','🧭','🎯','⚡','🦅','🔥','🌊','🧠','💎'];
 const EFFECTS=[['none','None'],['grain','Film grain'],['glow','Soft glow'],['grid','Chart grid']];
 const SYMS={es:'ES',mes:'MES',nq:'NQ',mnq:'MNQ',eurusd:'EURUSD',gbpusd:'GBPUSD',xauusd:'XAUUSD',gold:'XAUUSD',spy:'SPY',qqq:'QQQ',nasdaq:'NQ'};
@@ -1133,7 +1141,7 @@ function workOnPanel(ts,scopeLabel,key,scope){
   ${tab.length?`<div class="wk-list">${tab.map((h,i)=>`<div class="wk"><span class="wk-n" aria-hidden="true">${i+1}</span><span><b>${esc(h.name)}</b><small>${h.n} flag${h.n>1?'s':''}, last ${esc(since(h.last))}</small></span><span class="wk-c ${cls(h.cost)}">${money(h.cost)}</span></div>`).join('')}</div>`:''}
   <p class="focus"><b>Focus:</b> ${esc(focus)}</p>
   ${weak||best?`<div class="hint" style="display:grid;gap:2px">${weak?`<span>Weakest window: <b>${esc(weak.label)}</b> (${money(weak.pnl)})</span>`:''}${best?`<span>Best confluence: <b>${esc(best.label)}</b> (${pct(best.winRate)} win rate)</span>`:''}</div>`:''}
-  <div class="row" style="margin-top:14px"><button class="btn primary" data-act="work-ai" data-k="${key}" data-s="${scope}">Ask AI for a plan</button><span class="hint" id="wkstat-${key}"></span></div>
+  <div class="row" style="margin-top:14px"><button class="btn primary" data-act="work-ai" data-k="${key}" data-s="${scope}">Ask Luma</button><span class="hint" id="wkstat-${key}"></span></div>
   <div class="ai-out" id="wkai-${key}" ${workAI[key]?'':'hidden'}>${workAI[key]?md(workAI[key]):''}</div></div>`;
 }
 async function genWorkPlan(key,scope){
@@ -2725,7 +2733,7 @@ function renderGate(mode,o){
   const el=$('#auth');el.hidden=false;document.body.classList.add('gated');
   const msg=cloud.gateMsg?`<div class="auth-msg ${cloud.gateMsg.k}" id="authmsg" role="alert">${esc(cloud.gateMsg.t)}</div>`:'<div class="auth-msg" id="authmsg" role="alert"></div>';
   const foot=`<p class="auth-foot">${esc(typeof copyrightText==='function'?copyrightText():'')}</p>`;
-  const brand=`<div class="brand" style="justify-content:center;font-size:24px"><i></i>ProjectLuma</div>`;
+  const brand=`<div class="brand" style="justify-content:center;font-size:24px">${logoSvg('auth')}ProjectLuma</div>`;
   const email=`<label class="f">Email<input name="email" type="email" autocomplete="email" inputmode="email" required value="${esc(cloud.gateEmail||'')}"></label>`;
   let inner='';
   if(mode==='setup'){
@@ -2947,10 +2955,10 @@ const navItems=()=>NAV.concat(isAdmin()?[['admin','Admin']]:[]);
 function renderTop(){
   const total=sum(scopeTrades('live').filter(closed).map(t=>t.pnl));
   const keep=$('#gsearch')?$('#gsearch').value:'';
-  $('#top').innerHTML=`<div class="brand"><i></i>ProjectLuma</div>
+  $('#top').innerHTML=`<div class="brand">${logoSvg('top')}ProjectLuma</div>
   <nav class="tabs" aria-label="Sections">${navItems().map(n=>`<button class="tab ${S.ui.view===n[0]?'on':''}" data-act="nav" data-v="${n[0]}" ${S.ui.view===n[0]?'aria-current="page"':''}>${icon(n[0])}<span>${n[1]}</span></button>`).join('')}</nav>
   <div class="top-search">${icon('search')}<input id="gsearch" placeholder="Search your trades" aria-label="Search your trades" value="${esc(keep)}"></div>
-  <div class="top-act">${fox.on?`<button class="tbtn foxchip" data-act="fox-toggle" aria-label="Turn off ${esc(wakeName())}"><i></i><span class="lbl">${esc(wakeName())} is listening</span></button>`:''}<button class="tbtn sq" data-act="notifs-open" aria-label="Notifications${newsAlertDot()?', high impact US event within 24 hours':''}">${icon('bell')}${newsAlertDot()?'<span class="dot"></span>':''}</button><button class="tbtn" data-act="chat-open">${icon('spark')}<span class="lbl">Ask Luma</span></button><span class="tbtn pl-chip ${cls(total)}" title="Closed P&L across your live journals">${money(total)}</span>${cloud.session?`<button class="tbtn sq" data-act="account-open" aria-label="Account and sync"><span class="avatar">${esc(((cloud.session.user.email||'?')[0]||'?').toUpperCase())}</span><i class="sdot s-${cloud.status}"></i></button>`:''}<button class="tbtn sq" data-act="settings-open" aria-label="Settings">${icon('gear')}</button></div>`;
+  <div class="top-act">${fox.on?`<button class="tbtn foxchip" data-act="fox-toggle" aria-label="Turn off ${esc(wakeName())}"><i></i><span class="lbl">${esc(wakeName())} is listening</span></button>`:''}<button class="tbtn sq" data-act="notifs-open" aria-label="Notifications${newsAlertDot()?', high impact US event within 24 hours':''}">${icon('bell')}${newsAlertDot()?'<span class="dot"></span>':''}</button><span class="tbtn pl-chip ${cls(total)}" title="Closed P&L across your live journals">${money(total)}</span>${cloud.session?`<button class="tbtn sq" data-act="account-open" aria-label="Account and sync"><span class="avatar">${esc(((cloud.session.user.email||'?')[0]||'?').toUpperCase())}</span><i class="sdot s-${cloud.status}"></i></button>`:''}<button class="tbtn sq" data-act="settings-open" aria-label="Settings">${icon('gear')}</button></div>`;
 }
 const renderSide2=()=>renderTop();
 function renderTabbar(){
