@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>TradeLens</title>
-<meta name="description" content="TradeLens: a next-gen trading terminal — journal, backtest replay, voice-driven review and a live P&L calendar, all in one dark cockpit.">
+<title>ProjectLuma</title>
+<meta name="description" content="ProjectLuma: a next-gen trading terminal — journal, backtest replay, voice-driven review and a live P&L calendar, all in one dark cockpit.">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='1' y2='1'%3E%3Cstop offset='0' stop-color='%2322e6ff'/%3E%3Cstop offset='1' stop-color='%238b5cf6'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='64' height='64' rx='16' fill='%2305070d'/%3E%3Cpath d='M12 44l14-16 10 8 16-20' fill='none' stroke='url(%23g)' stroke-width='6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1418,7 +1418,7 @@ function vDash(){
     :`<div class="panel"><div class="empty" style="border:0"><h3>No closed trades in this range</h3><div>Pick a longer range or another journal, or log a trade with a P&amp;L.</div></div></div>`;
   return `<div class="page"><div class="row" style="margin-bottom:14px;justify-content:space-between"><div class="page-h" style="margin:0"><h1>Dashboard</h1></div>
    <div class="row"><label class="f" style="min-width:200px;flex-direction:row;align-items:center;gap:8px">Show<select data-in="dash-j">${scopeOptions(d.j)}</select></label><div class="seg" role="group" aria-label="Date range">${rg('7','7D')}${rg('30','30D')}${rg('90','90D')}${rg('all','All')}</div></div></div>
-  ${S.trades.length?'':`<div class="panel glass" style="margin-bottom:14px"><h3 style="margin-bottom:6px">Welcome to TradeLens</h3><p class="muted" style="margin:0 0 12px">Everything starts empty and is yours. Three ways to begin:</p><div class="row"><button class="btn primary" data-act="nav" data-v="journal">Log your first trade</button><button class="btn" data-act="nav" data-v="backtest">Try a backtest with Luma</button><button class="btn ghost" data-act="nav" data-v="news">See this week's news</button></div></div>`}
+  ${S.trades.length?'':`<div class="panel glass" style="margin-bottom:14px"><h3 style="margin-bottom:6px">Welcome to ProjectLuma</h3><p class="muted" style="margin:0 0 12px">Everything starts empty and is yours. Three ways to begin:</p><div class="row"><button class="btn primary" data-act="nav" data-v="journal">Log your first trade</button><button class="btn" data-act="nav" data-v="backtest">Try a backtest with Luma</button><button class="btn ghost" data-act="nav" data-v="news">See this week's news</button></div></div>`}
   <div class="dg">
    <div class="c8 col">${hero}
      ${bySym.length?`<div class="ticks" aria-label="Results by symbol">${bySym.map(r=>`<span class="tick"><b>${esc(r.label)}</b><span class="${cls(r.pnl)}">${money(r.pnl)}</span><span class="muted">${pct(r.winRate)}</span></span>`).join('')}</div>`:''}
@@ -1565,7 +1565,7 @@ function standaloneHtml(){
 }
 async function downloadStandalone(){
   let html;try{html=standaloneHtml()}catch(e){toast('The file could not be built.');return}
-  await saveFile('tradelens.html',html);
+  await saveFile('projectluma.html',html);
 }
 /* Optional: lets the downloaded file talk to Claude with the viewer's own Anthropic API key */
 const blobToB64=b=>new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result).split(',')[1]);r.onerror=rej;r.readAsDataURL(b)});
@@ -2244,7 +2244,7 @@ function checkReminders(){
     const diff=eventDate(e)-now;
     if(diff>0&&diff<=S.settings.minBefore*60000){
       fired.add(id);toast(`${e.title} (${e.country}) starts at ${e.time} ET`);
-      try{if('Notification' in window&&Notification.permission==='granted')new Notification('TradeLens',{body:`${e.title} at ${e.time} ET`})}catch(x){}
+      try{if('Notification' in window&&Notification.permission==='granted')new Notification('ProjectLuma',{body:`${e.title} at ${e.time} ET`})}catch(x){}
     }
   });
 }
@@ -2292,12 +2292,12 @@ async function saveFile(name,data){
 function exportCSV(){
   const q=v=>'"'+String(v==null?'':v).replace(/"/g,'""')+'"';
   const rows=[['date','time','journal','symbol','direction','setup','risk','pnl','habits','confluences','details']].concat([...S.trades].sort(cmpAsc).map(t=>[t.date,t.time,(jOf(t)||{}).name||'',t.symbol,t.direction,t.setup,t.risk,t.open?'':t.pnl,habitNames(t).join('; '),(t.confluences||[]).join('; '),t.details]));
-  saveFile('tradelens-trades.csv',rows.map(r=>r.map(q).join(',')).join('\n'));
+  saveFile('projectluma-trades.csv',rows.map(r=>r.map(q).join(',')).join('\n'));
 }
 
 /* ---------- CHAT ---------- */
 const chat={open:false,turns:[],busy:false,ctl:null};
-const RULES='You are Luma, the friendly assistant inside TradeLens, a trading journal app. You have a warm, upbeat, slightly playful personality, and you talk like a helpful friend: short, plain language, a little humor, never stiff. If the person greets you or chats, answer naturally and ask what they would like to look at. When they ask about their trading, use the journal data below and cite dates, symbols and dollar amounts. If the data is thin, say what is missing and how to add it (log trades, flag habits, add confluences). Never mention that they have no journals or no data unless they asked about it. When it helps, end with one short follow-up question or a next step. You may point to app features: backtest voice journaling with Luma, confluences, the dashboard calendar, the weekly review. Do not give financial advice or predict markets. Use short paragraphs or hyphen bullets, no tables.';
+const RULES='You are Luma, the friendly assistant inside ProjectLuma, a trading journal app. You have a warm, upbeat, slightly playful personality, and you talk like a helpful friend: short, plain language, a little humor, never stiff. If the person greets you or chats, answer naturally and ask what they would like to look at. When they ask about their trading, use the journal data below and cite dates, symbols and dollar amounts. If the data is thin, say what is missing and how to add it (log trades, flag habits, add confluences). Never mention that they have no journals or no data unless they asked about it. When it helps, end with one short follow-up question or a next step. You may point to app features: backtest voice journaling with Luma, confluences, the dashboard calendar, the weekly review. Do not give financial advice or predict markets. Use short paragraphs or hyphen bullets, no tables.';
 const chipsDefault=()=>['What should I work on?','How am I doing this week?','Best time of day for me','Which confluences work best?'];
 function localSmallTalk(t){
   const s=String(t).toLowerCase().replace(/[^a-z0-9'\s]/g,' ').replace(/\s+/g,' ').trim();
@@ -2725,7 +2725,7 @@ function renderGate(mode,o){
   const el=$('#auth');el.hidden=false;document.body.classList.add('gated');
   const msg=cloud.gateMsg?`<div class="auth-msg ${cloud.gateMsg.k}" id="authmsg" role="alert">${esc(cloud.gateMsg.t)}</div>`:'<div class="auth-msg" id="authmsg" role="alert"></div>';
   const foot=`<p class="auth-foot">${esc(typeof copyrightText==='function'?copyrightText():'')}</p>`;
-  const brand=`<div class="brand" style="justify-content:center;font-size:24px"><i></i>TradeLens</div>`;
+  const brand=`<div class="brand" style="justify-content:center;font-size:24px"><i></i>ProjectLuma</div>`;
   const email=`<label class="f">Email<input name="email" type="email" autocomplete="email" inputmode="email" required value="${esc(cloud.gateEmail||'')}"></label>`;
   let inner='';
   if(mode==='setup'){
@@ -2947,7 +2947,7 @@ const navItems=()=>NAV.concat(isAdmin()?[['admin','Admin']]:[]);
 function renderTop(){
   const total=sum(scopeTrades('live').filter(closed).map(t=>t.pnl));
   const keep=$('#gsearch')?$('#gsearch').value:'';
-  $('#top').innerHTML=`<div class="brand"><i></i>TradeLens</div>
+  $('#top').innerHTML=`<div class="brand"><i></i>ProjectLuma</div>
   <nav class="tabs" aria-label="Sections">${navItems().map(n=>`<button class="tab ${S.ui.view===n[0]?'on':''}" data-act="nav" data-v="${n[0]}" ${S.ui.view===n[0]?'aria-current="page"':''}>${icon(n[0])}<span>${n[1]}</span></button>`).join('')}</nav>
   <div class="top-search">${icon('search')}<input id="gsearch" placeholder="Search your trades" aria-label="Search your trades" value="${esc(keep)}"></div>
   <div class="top-act">${fox.on?`<button class="tbtn foxchip" data-act="fox-toggle" aria-label="Turn off ${esc(wakeName())}"><i></i><span class="lbl">${esc(wakeName())} is listening</span></button>`:''}<button class="tbtn sq" data-act="notifs-open" aria-label="Notifications${newsAlertDot()?', high impact US event within 24 hours':''}">${icon('bell')}${newsAlertDot()?'<span class="dot"></span>':''}</button><button class="tbtn" data-act="chat-open">${icon('spark')}<span class="lbl">Ask Luma</span></button><span class="tbtn pl-chip ${cls(total)}" title="Closed P&L across your live journals">${money(total)}</span>${cloud.session?`<button class="tbtn sq" data-act="account-open" aria-label="Account and sync"><span class="avatar">${esc(((cloud.session.user.email||'?')[0]||'?').toUpperCase())}</span><i class="sdot s-${cloud.status}"></i></button>`:''}<button class="tbtn sq" data-act="settings-open" aria-label="Settings">${icon('gear')}</button></div>`;
@@ -3061,7 +3061,7 @@ const A={
   emoji:el=>{const j=jFrom(el);j.icon=el.dataset.e;j.iconImg='';persist();drawCust()},
   'icon-clear':el=>{const j=jFrom(el);j.iconImg='';j.iconOpaque=false;persist();drawCust()},
   'export-csv':exportCSV,
-  'export-json':()=>{const c=JSON.parse(JSON.stringify(S));if(c.settings){delete c.settings.apiKey;delete c.settings.apiKeyEnc}saveFile('tradelens-backup.json',JSON.stringify(c,null,2))},
+  'export-json':()=>{const c=JSON.parse(JSON.stringify(S));if(c.settings){delete c.settings.apiKey;delete c.settings.apiKeyEnc}saveFile('projectluma-backup.json',JSON.stringify(c,null,2))},
   'del-journal':async el=>{
     const j=jFrom(el),liveCount=S.journals.filter(x=>!isBt(x)).length;
     if(!isBt(j)&&liveCount<2){toast('You need at least one live journal.');return}
@@ -3247,7 +3247,7 @@ function processIcon(file){
 }
 async function importJsonBackup(file){
   let data;try{data=JSON.parse(await file.text())}catch(e){toast('That file is not a valid backup.');return}
-  if(!data||!Array.isArray(data.journals)||!Array.isArray(data.trades)){toast('That file is not a TradeLens backup.');return}
+  if(!data||!Array.isArray(data.journals)||!Array.isArray(data.trades)){toast('That file is not a ProjectLuma backup.');return}
   if(!await ask('Replace everything with this backup?',{confirmOnly:true,message:`It contains ${data.journals.length} journals and ${data.trades.length} trades. Your current data will be replaced. Screenshots and videos are not part of a backup.`,okLabel:'Replace',danger:true}))return;
   const k=S.settings?{apiKey:S.settings.apiKey,apiKeyEnc:S.settings.apiKeyEnc}:{};S=data;S.settings=S.settings||{};delete S.settings.apiKey;delete S.settings.apiKeyEnc;if(k.apiKey)S.settings.apiKey=k.apiKey;if(k.apiKeyEnc)S.settings.apiKeyEnc=k.apiKeyEnc;normalize();persist();closeDlg(true);render();toast('Backup restored.');
 }
