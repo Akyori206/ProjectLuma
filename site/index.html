@@ -215,14 +215,15 @@ svg.eq text{fill:var(--ink2);font-size:11px}
 .jt.on{background:var(--panel2);border-color:var(--line2);box-shadow:inset 0 -2px 0 var(--accent)}
 .jt small{color:var(--ink2);font-weight:600}
 .jt.add{color:var(--ink2);border-style:dashed}
-.banner{position:relative;height:190px;border-radius:20px;background-size:cover;background-position:center;overflow:hidden;isolation:isolate;border:1px solid var(--line)}
+.banner{position:relative;height:clamp(240px,19vw,360px);border-radius:20px;background-size:cover;background-position:center;overflow:hidden;isolation:isolate;border:1px solid var(--line)}
 .banner-media{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:0}
-.banner.sm{height:120px}
-.banner::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(4,4,4,.8),rgba(4,4,4,.05) 72%);z-index:1}
-.banner-in{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;align-items:flex-end;gap:16px;padding:18px 22px;color:#fff}
+
+.banner.sm{height:clamp(170px,13vw,240px)}
+.banner::after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(4,4,4,.82),rgba(4,4,4,.04) 62%);z-index:1}
+.banner-in{position:absolute;left:0;right:0;bottom:0;z-index:2;display:flex;align-items:flex-end;gap:16px;padding:22px 24px;color:#fff}
 .banner h1{font-size:clamp(24px,3.6vw,36px);line-height:1.1;text-shadow:0 2px 14px rgba(0,0,0,.45)}
 .bsub{margin:4px 0 0;opacity:.92;font-size:14px}
-.bicon{font-size:40px;line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
+.bicon{font-size:50px;line-height:1;filter:drop-shadow(0 4px 10px rgba(0,0,0,.4))}
 .banner-act{position:absolute;right:14px;top:14px;z-index:3}
 .banner-act .btn{background:rgba(6,6,6,.62);color:#fff;border-color:rgba(255,255,255,.18);backdrop-filter:blur(6px)}
 .fx{position:absolute;inset:0;z-index:0;pointer-events:none}
@@ -286,7 +287,12 @@ td.r,th.r{text-align:right}
 .p-body{padding:20px;display:grid;gap:22px}
 .shot-main{position:relative;aspect-ratio:16/9;background:#0b1114;border-radius:16px;overflow:hidden;border:1px solid var(--line)}
 .shot-main img{width:100%;height:100%;object-fit:contain;display:block}
+.shot-main img[data-media]{cursor:zoom-in}
 .shot-note{position:absolute;left:10px;bottom:8px;font-size:12px;color:#9aa;background:rgba(6,6,6,.7);padding:2px 8px;border-radius:6px}
+.zoom{position:fixed;inset:0;z-index:200;background:rgba(4,4,4,.92);display:grid;place-items:center;padding:24px;cursor:zoom-out}
+.zoom[hidden]{display:none}
+.zoom img{max-width:100%;max-height:100%;object-fit:contain;border-radius:8px;box-shadow:var(--shadow);cursor:default}
+.zoom .icon-btn{position:absolute;top:16px;right:16px;background:rgba(255,255,255,.1);color:#fff}
 .shot-strip{display:flex;gap:8px;margin-top:8px;flex-wrap:wrap}
 .shot-strip button{width:84px;aspect-ratio:16/10;padding:0;border:2px solid var(--line);border-radius:8px;overflow:hidden;background:#0b1114}
 .shot-strip button.on{border-color:var(--accent)}
@@ -398,6 +404,24 @@ video.vid{width:100%;border-radius:14px;background:#000;max-height:380px}
 
 
 .jimg{display:block;object-fit:contain}
+.jimg-wrap{position:relative;display:inline-block;overflow:hidden;vertical-align:middle;flex:none}
+.jimg-wrap.op{border-radius:22%}
+.pos-layer{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.adj{position:fixed;inset:0;z-index:120;background:rgba(0,0,0,.72);display:grid;place-items:center;padding:16px}
+.adj-card{background:var(--panel);border:1px solid var(--line2);border-radius:20px;width:min(620px,100%);max-height:calc(100vh - 32px);overflow:auto;box-shadow:var(--shadow)}
+.adj-b{padding:16px 20px;display:grid;gap:14px}
+.adj-f{position:sticky;bottom:0;display:flex;justify-content:flex-end;gap:8px;padding:14px 20px;background:var(--panel);border-top:1px solid var(--line)}
+.adj-stage{position:relative;width:100%;border-radius:14px;overflow:hidden;background:#0b0b0b;border:1px solid var(--line2);touch-action:none;cursor:grab}
+.adj-stage:active{cursor:grabbing}
+.adj-stage.round{border-radius:22%}
+.adj-live{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block}
+.adj-note{font-size:13px;color:var(--ink2)}
+.adj-note b{color:var(--amber)}
+.adj-grid{position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.22) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.22) 1px,transparent 1px);background-size:33.33% 33.33%;opacity:.5}
+.adj input[type=range]{width:100%;accent-color:var(--accent)}
+.font-prev{display:grid;gap:4px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:var(--panel2);margin-top:10px}
+.font-prev span{font-size:24px;line-height:1.2}
+.font-prev small{color:var(--ink2);font-size:14px}
 .jimg.op{border-radius:22%}
 .jic{display:inline-flex;align-items:center}
 .dcal{display:grid;grid-template-columns:repeat(7,minmax(0,1fr)) minmax(0,1.1fr);gap:6px}
@@ -496,7 +520,7 @@ body.gated #top,body.gated #main,body.gated #tabbar,body.gated #foot{display:non
   .hero{grid-template-columns:1fr}
   .hero>div+div{border-left:0;border-top:1px solid var(--line)}
   .h-lab{margin-bottom:12px}
-  .banner{height:150px;border-radius:16px}
+  .banner{height:clamp(180px,46vw,240px);border-radius:16px}
   .banner-in{padding:14px 16px}
   .bicon{font-size:32px}
   .cards{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
@@ -553,6 +577,7 @@ body.gated #top,body.gated #main,body.gated #tabbar,body.gated #foot{display:non
 </aside>
 <div id="dlg" class="dlg" hidden></div>
 <div id="modal" hidden></div>
+<div id="zoom" class="zoom" hidden role="dialog" aria-modal="true" aria-label="Screenshot, zoomed in"><button class="icon-btn" data-act="zoom-close" aria-label="Close"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><img id="zoomimg" alt="Screenshot, zoomed in"></div>
 <div id="toasts" role="status" aria-live="polite"></div>
 <script>
 'use strict';
@@ -884,7 +909,7 @@ async function hydrate(root){
     if(u){el.src=u}
   }
 }
-function toJpeg(file,max=1400,q=.85){
+function toJpeg(file,max=2400,q=.94){
   return new Promise((res,rej)=>{
     const img=new Image(),u=URL.createObjectURL(file);
     img.onload=()=>{const s=Math.min(1,max/Math.max(img.width,img.height));const c=document.createElement('canvas');c.width=Math.round(img.width*s);c.height=Math.round(img.height*s);c.getContext('2d').drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(u);c.toBlob(b=>b?res(b):rej(new Error('encode')),'image/jpeg',q)};
@@ -1039,7 +1064,147 @@ function dataContext(){
 }
 
 /* ---------- JOURNAL VIEWS (live journals and the backtest journal share these) ---------- */
+/* ---------- FONTS for journal names and descriptions ---------- */
+const FONTS=[
+  ['default','Default',"'Sora','Manrope',system-ui,sans-serif",''],
+  ['clean','Clean',"'Manrope',system-ui,sans-serif",''],
+  ['grotesk','Modern',"'Space Grotesk','Manrope',sans-serif",'Space+Grotesk:wght@400;500;600'],
+  ['serif','Classic serif',"'Playfair Display',Georgia,serif",'Playfair+Display:ital,wght@0,400;0,600;1,400'],
+  ['slab','Bold serif',"'Young Serif',Georgia,serif",'Young+Serif'],
+  ['condensed','Poster',"'Bebas Neue','Arial Narrow',sans-serif",'Bebas+Neue'],
+  ['hand','Handwritten',"'Caveat',cursive",'Caveat:wght@500;700'],
+  ['mono','Terminal',"'JetBrains Mono',ui-monospace,monospace",'JetBrains+Mono:wght@400;600']
+];
+const fontOf=id=>FONTS.find(f=>f[0]===id)||FONTS[0];
+const fontCss=id=>fontOf(id)[2];
+const loadedFonts=new Set();
+function ensureFont(id){
+  const f=fontOf(id);if(!f[3]||loadedFonts.has(f[0]))return;
+  loadedFonts.add(f[0]);
+  try{const l=document.createElement('link');l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family='+f[3]+'&display=swap';document.head.appendChild(l)}catch(e){}
+}
+const ensureAllFonts=()=>FONTS.forEach(f=>ensureFont(f[0]));
+const nameFont=j=>`font-family:${fontCss(j&&j.font)}`;
+const descFont=j=>`font-family:${fontCss(j&&j.descFont)}`;
+
+/* ---------- IMAGE ADJUSTER: drag to move, slider to zoom, confirm before saving ----------
+   We never crop the file. We save where you put it (a focal point plus a zoom) and the page
+   shows it with exactly the same rules, so what you frame is what you get at any screen size. */
+const fitStyle=p=>p?`object-fit:cover;object-position:${(+p.fx).toFixed(2)}% ${(+p.fy).toFixed(2)}%;transform:scale(${(+p.zoom).toFixed(4)});transform-origin:${(+p.fx).toFixed(2)}% ${(+p.fy).toFixed(2)}%`:'';
+const posStyle=fitStyle;   /* older name, kept so nothing else breaks */
+function coverBox(iw,ih,cw,ch,zoom){
+  const s=Math.max(cw/iw,ch/ih)*zoom;
+  return{w:iw*s,h:ih*s,overX:Math.max(0,iw*s-cw),overY:Math.max(0,ih*s-ch)};
+}
+/* Live element size, so the popup frame matches the real banner instead of a guessed shape. */
+function liveWidth(sel,fallback){
+  try{const el=document.querySelector(sel);if(el){const r=el.getBoundingClientRect();if(r.width>40)return r.width}}catch(e){}
+  return fallback;
+}
+function liveAspect(sel,fallback){
+  try{const el=document.querySelector(sel);if(el){const r=el.getBoundingClientRect();if(r.width>40&&r.height>20)return r.width/r.height}}catch(e){}
+  return fallback;
+}
+function imageAdjuster(file,o){
+  o=o||{};
+  const aspect=o.aspect||3.8;
+  return new Promise(resolve=>{
+    const anim=typeof ANIM_IMG==='function'&&ANIM_IMG(file.type);
+    if(file.size>20*1024*1024){toast('That file is larger than 20 MB. Try a smaller one.');return resolve(null)}
+    const img=new Image(),src=URL.createObjectURL(file);
+    img.onerror=()=>{URL.revokeObjectURL(src);toast('That image could not be read.');resolve(null)};
+    img.onload=()=>{
+      const wrap=document.createElement('div');
+      wrap.className='adj';
+      wrap.innerHTML=`<div class="adj-card" role="dialog" aria-modal="true" aria-label="${esc(o.title||'Adjust your image')}">
+        <div class="dlg-h"><h3>${esc(o.title||'Adjust your image')}</h3><button class="icon-btn" data-a="cancel" aria-label="Cancel">${icon('x')}</button></div>
+        <div class="adj-b">
+          <p class="hint" style="margin:0">Drag the image to move it, and zoom in or out below. The frame is the real shape it will appear in.${anim?' <b>This one is animated, so it keeps moving.</b>':''}</p>
+          <div class="adj-stage ${o.round?'round':''}" style="aspect-ratio:${aspect.toFixed(4)}"><img class="adj-live" id="adjlive" alt=""><div class="adj-grid"></div></div>
+          <label class="f">Zoom<input type="range" id="adjzoom" min="100" max="400" value="100" aria-label="Zoom"></label>
+          <p class="adj-note" id="adjnote"></p>
+          <div class="row"><button class="btn ghost sm" data-a="reset">Reset</button><span class="hint">${esc(o.hint||'')}</span></div>
+        </div>
+        <div class="adj-f"><button class="btn ghost" data-a="cancel">Cancel</button><button class="btn primary" data-a="ok">${esc(o.okLabel||'Use this image')}</button></div>
+      </div>`;
+      document.body.appendChild(wrap);
+      const stage=wrap.querySelector('.adj-stage'),view=wrap.querySelector('#adjlive'),zoomEl=wrap.querySelector('#adjzoom'),note=wrap.querySelector('#adjnote');
+      view.src=src;
+      let zoom=1,fx=50,fy=50,box={w:0,h:0};
+      const measure=()=>{const r=stage.getBoundingClientRect();box={w:Math.max(1,r.width),h:Math.max(1,r.height)}};
+      /* How much the picture is enlarged at its real size on the page. Over about 1.15x starts to look soft. */
+      const magnify=()=>{
+        const iw=img.naturalWidth,ih=img.naturalHeight,realW=o.realW||box.w,realH=realW/aspect;
+        return Math.max(realW/iw,realH/ih)*zoom;
+      };
+      const setNote=()=>{
+        const m=magnify(),iw=img.naturalWidth,ih=img.naturalHeight;
+        note.innerHTML=`Your file is ${iw}&times;${ih}. `+(m>1.15
+          ?`<b>It is stretched ${m.toFixed(1)}&times; to fill the banner, which softens it.</b> A file about ${Math.ceil(iw*m/100)*100} pixels wide would stay sharp.`
+          :`Shown at ${m<1?Math.round(m*100)+'% of':'full'} its own size, so it stays sharp.`);
+      };
+      const draw=()=>{
+        fx=Math.min(100,Math.max(0,fx));fy=Math.min(100,Math.max(0,fy));
+        view.setAttribute('style',fitStyle({zoom,fx,fy}));
+        setNote();
+      };
+      measure();draw();
+      const onResize=()=>{measure();draw()};
+      window.addEventListener('resize',onResize);
+      let dragging=false,px=0,py=0;
+      stage.addEventListener('pointerdown',e=>{dragging=true;px=e.clientX;py=e.clientY;try{stage.setPointerCapture(e.pointerId)}catch(x){}e.preventDefault()});
+      stage.addEventListener('pointermove',e=>{
+        if(!dragging)return;
+        const c=coverBox(img.naturalWidth,img.naturalHeight,box.w,box.h,zoom);
+        if(c.overX>0)fx-=(e.clientX-px)/c.overX*100;
+        if(c.overY>0)fy-=(e.clientY-py)/c.overY*100;
+        px=e.clientX;py=e.clientY;draw();
+      });
+      const endDrag=()=>{dragging=false};
+      stage.addEventListener('pointerup',endDrag);stage.addEventListener('pointercancel',endDrag);stage.addEventListener('pointerleave',endDrag);
+      const setZoom=z=>{zoom=Math.min(4,Math.max(1,z));zoomEl.value=Math.round(zoom*100);draw()};
+      zoomEl.addEventListener('input',()=>setZoom(Number(zoomEl.value)/100));
+      stage.addEventListener('wheel',e=>{e.preventDefault();setZoom(zoom*(e.deltaY<0?1.08:1/1.08))},{passive:false});
+      let pinch=0;
+      stage.addEventListener('touchmove',e=>{
+        if(e.touches.length!==2)return;
+        e.preventDefault();
+        const d=Math.hypot(e.touches[0].clientX-e.touches[1].clientX,e.touches[0].clientY-e.touches[1].clientY);
+        if(pinch)setZoom(zoom*(d/pinch));
+        pinch=d;dragging=false;
+      },{passive:false});
+      stage.addEventListener('touchend',()=>{pinch=0});
+      const close=v=>{
+        window.removeEventListener('resize',onResize);document.removeEventListener('keydown',onKey);
+        URL.revokeObjectURL(src);wrap.remove();resolve(v);
+      };
+      const onKey=e=>{if(e.key==='Escape'){e.stopPropagation();close(null)}};
+      document.addEventListener('keydown',onKey);
+      wrap.addEventListener('click',e=>{
+        const b=e.target.closest('[data-a]');
+        if(!b){if(e.target===wrap)close(null);return}
+        if(b.dataset.a==='cancel')close(null);
+        else if(b.dataset.a==='reset'){zoom=1;fx=50;fy=50;zoomEl.value=100;draw()}
+        else if(b.dataset.a==='ok')close({anim,blob:file,mime:file.type,pos:{zoom,fx,fy}});
+      });
+      setTimeout(()=>{const f=wrap.querySelector('[data-a=ok]');if(f)f.focus()},30);
+    };
+    img.src=src;
+  });
+}
+/* Big stills are shrunk before saving; animations and icons keep their original file. */
+/* Your file is stored exactly as you uploaded it, at full quality. Only a very large photo
+   (over 9 MB, and never an animation or icon) is resized, and then only gently. */
+async function storeAdjusted(r,keepOriginal){
+  let blob=r.blob;
+  if(!r.anim&&!keepOriginal&&blob.size>9*1024*1024){
+    try{const shrunk=await toJpeg(blob,4000,.95);if(shrunk&&shrunk.size<blob.size)blob=shrunk}catch(e){}
+  }
+  const id=uid('img');await media.put(id,blob);
+  return id;
+}
 function iconHtml(j,size){
+  if(j&&j.iconMediaId&&j.iconPos)return `<span class="jimg-wrap ${j.iconOpaque?'op':''}" style="width:${size}px;height:${size}px"><img class="pos-layer" data-media="${j.iconMediaId}" alt="" style="${fitStyle(j.iconPos)}"></span>`;
   if(j&&j.iconMediaId)return `<img class="jimg ${j.iconOpaque?'op':''}" data-media="${j.iconMediaId}" alt="" style="height:${size}px;width:${size}px">`;
   if(j&&j.iconImg)return `<img class="jimg ${j.iconOpaque?'op':''}" src="${j.iconImg}" alt="" style="height:${size}px;width:${size}px">`;
   return esc(j?j.icon:'');
@@ -1053,10 +1218,11 @@ function bannerStyle(j){
 function bannerMediaHtml(j){
   const b=j.banner||{};
   if(!b.mediaId)return '';
-  return b.type==='video'?`<video class="banner-media" data-media="${b.mediaId}" autoplay loop muted playsinline></video>`:`<img class="banner-media" data-media="${b.mediaId}" alt="">`;
+  const ps=b.pos?` style="${fitStyle(b.pos)}"`:'';
+  return b.type==='video'?`<video class="banner-media" data-media="${b.mediaId}" autoplay loop muted playsinline${ps}></video>`:`<img class="banner-media" data-media="${b.mediaId}" alt=""${ps}>`;
 }
 function bannerHtml(j,sub,sm){
-  return `<div class="banner ${sm?'sm':''}" style="${bannerStyle(j)}">${bannerMediaHtml(j)}<div class="fx"></div><div class="banner-act"><button class="btn sm" data-act="cust-open" data-j="${j.id}">${icon('gear')}Customize</button></div><div class="banner-in"><span class="bicon">${iconHtml(j,46)}</span><div><h1>${esc(j.name)}</h1><p class="bsub">${sub}</p></div></div></div>${j.desc?`<p class="jdesc">${esc(j.desc)}</p>`:''}`;
+  return `<div class="banner ${sm?'sm':''}" style="${bannerStyle(j)}">${bannerMediaHtml(j)}<div class="fx"></div><div class="banner-act"><button class="btn sm" data-act="cust-open" data-j="${j.id}">${icon('gear')}Customize</button></div><div class="banner-in"><span class="bicon">${iconHtml(j,56)}</span><div><h1 style="${nameFont(j)}">${esc(j.name)}</h1><p class="bsub">${sub}</p></div></div></div>${j.desc?`<p class="jdesc" style="${descFont(j)}">${esc(j.desc)}</p>`:''}`;
 }
 function filteredTrades(j){
   let ts=tradesOf(j.id);const u=fs(j);
@@ -1078,7 +1244,7 @@ function toolbarHtml(j){
 }
 function vJournal(){
   const j=activeJournal(),ts=tradesOf(j.id),st=stats(ts),live=S.journals.filter(x=>!isBt(x));
-  const tabs=`<div class="jtabs" role="tablist" aria-label="Journals">${live.map(x=>`<button class="jt ${x.id===j.id?'on':''}" role="tab" aria-selected="${x.id===j.id}" data-act="pick-journal" data-id="${x.id}"><span class="jic">${iconHtml(x,20)}</span>${esc(x.name)}<small>${tradesOf(x.id).length}</small></button>`).join('')}<button class="jt add" data-act="new-journal">${icon('plus')}New journal</button></div>`;
+  const tabs=`<div class="jtabs" role="tablist" aria-label="Journals">${live.map(x=>`<button class="jt ${x.id===j.id?'on':''}" role="tab" aria-selected="${x.id===j.id}" data-act="pick-journal" data-id="${x.id}"><span class="jic">${iconHtml(x,20)}</span><span style="${nameFont(x)}">${esc(x.name)}</span><small>${tradesOf(x.id).length}</small></button>`).join('')}<button class="jt add" data-act="new-journal">${icon('plus')}New journal</button></div>`;
   return `<div class="page">${tabs}${bannerHtml(j,`${ts.length} trades, ${money(st.total)} total, ${pct(st.winRate)} win rate`)}
   ${S.demo&&!S.ui.demoDismissed?`<div style="margin-top:14px"><div class="note"><strong>You're looking at sample trades.</strong> Everything here is made up so you can try the app. <span class="row" style="display:inline-flex;margin-left:8px"><button class="btn sm" data-act="clear-demo">Clear sample data</button><button class="btn ghost sm" data-act="dismiss-demo">Keep for now</button></span></div></div>`:''}
   ${toolbarHtml(j)}<div id="jbody" data-j="${j.id}">${jBody(j)}</div></div>`;
@@ -1224,7 +1390,7 @@ function drawPanel(){
   if(isBt(jOf(t))){drawBtPanel(t);return}
   $('#panel').classList.remove('wide');
   const r=resultOf(t),imgs=t.imageIds||[];
-  const main=imgs.length?`<img data-media="${imgs[Math.min(pImg,imgs.length-1)]}" alt="Trade screenshot">`:`<img src="${chartSvg(t.seed,t.direction,t.pnl>0)}" alt="Sample chart"><span class="shot-note">Sample chart. Add a screenshot, or paste one with Ctrl+V.</span>`;
+  const main=imgs.length?`<img data-media="${imgs[Math.min(pImg,imgs.length-1)]}" alt="Trade screenshot" data-act="shot-zoom" role="button" tabindex="0" aria-label="Zoom in on this screenshot">`:`<img src="${chartSvg(t.seed,t.direction,t.pnl>0)}" alt="Sample chart"><span class="shot-note">Sample chart. Add a screenshot, or paste one with Ctrl+V.</span>`;
   const jOpts=S.journals.map(j=>`<option value="${j.id}" ${j.id===t.journalId?'selected':''}>${esc(j.name)}${isBt(j)?' (backtest)':''}</option>`).join('');
   const habs=S.habits.map(h=>`<button class="chip ${t.habits.includes(h.id)?'on':''}" data-act="tp-habit" data-id="${h.id}" aria-pressed="${t.habits.includes(h.id)}"><span class="dot" style="background:${h.color}"></span>${esc(h.name)}</button>`).join('');
   const ann=(t.annotations||[]).length?`<section><h4 class="sec-h">Session annotations</h4><div class="annot">${t.annotations.map(a=>`<time>${esc(a.at)}</time><span>${a.type==='habit'?'Habit: ':a.type==='conf'?'Confluence: ':a.type==='bad'?'Went wrong: ':'Note: '}${esc(a.text)}</span>`).join('')}</div></section>`:'';
@@ -1261,15 +1427,17 @@ function drawPanel(){
   hydrate($('#panel'));
 }
 
-function bulletSection(t,f,title,hint){
-  const arr=t[f]||[];
-  return `<div><h4 class="sec-h">${title}</h4>${arr.length?`<ul class="conf">${arr.map((c,i)=>`<li><div class="conf-row"><input data-bl="${f}" data-i="${i}" value="${esc(c)}" aria-label="${esc(title)} ${i+1}"><button class="icon-btn sm" data-act="bl-del" data-f="${f}" data-i="${i}" aria-label="Remove point ${i+1}">${icon('x')}</button></div></li>`).join('')}</ul>`:`<p class="hint" style="margin:0 0 8px">${hint}</p>`}
-  <div class="row"><input id="bl-in-${f}" data-blin="${f}" placeholder="Add a point" aria-label="Add to ${esc(title)}" style="max-width:260px"><button class="btn sm" data-act="bl-add" data-f="${f}">Add</button></div></div>`;
+function badSection(t){
+  const pts=t.bad||[];
+  return `<div><h4 class="sec-h">What went wrong</h4><p class="hint" style="margin:0 0 8px">Type it in your own words below. Luma only cleans up and organizes what you wrote, nothing invented or added. Luma also fills this in when you say “the bad things were…” or “what went wrong was…”.</p>
+  <textarea data-tf="badNotes" style="min-height:100px" placeholder="What hurt this trade? e.g. I entered too early and moved my stop when it went against me.">${esc(t.badNotes||'')}</textarea>
+  <div class="shot-act"><button class="btn sm" data-act="tp-cleanbad" id="badcleanbtn">Clean up with Luma</button><span class="hint" id="badcleanstat"></span></div>
+  ${pts.length?`<div class="ai-out" style="margin-top:10px"><h4>Organized</h4><ul>${pts.map(x=>`<li>${esc(x)}</li>`).join('')}</ul></div>`:''}</div>`;
 }
 function drawBtPanel(t){
   const r=resultOf(t),imgs=t.imageIds||[],R=!t.open&&t.risk?t.pnl/t.risk:null;
   $('#panel').classList.add('wide');
-  const main=imgs.length?`<img data-media="${imgs[Math.min(pImg,imgs.length-1)]}" alt="Trade screenshot">`:`<img src="${chartSvg(t.seed,t.direction,t.pnl>0)}" alt="Sample chart"><span class="shot-note">Sample chart. Add a screenshot, or paste one with Ctrl+V.</span>`;
+  const main=imgs.length?`<img data-media="${imgs[Math.min(pImg,imgs.length-1)]}" alt="Trade screenshot" data-act="shot-zoom" role="button" tabindex="0" aria-label="Zoom in on this screenshot">`:`<img src="${chartSvg(t.seed,t.direction,t.pnl>0)}" alt="Sample chart"><span class="shot-note">Sample chart. Add a screenshot, or paste one with Ctrl+V.</span>`;
   const jOpts=S.journals.map(j=>`<option value="${j.id}" ${j.id===t.journalId?'selected':''}>${esc(j.name)}${isBt(j)?' (backtest)':''}</option>`).join('');
   const habs=S.habits.map(h=>`<button class="chip ${t.habits.includes(h.id)?'on':''}" data-act="tp-habit" data-id="${h.id}" aria-pressed="${t.habits.includes(h.id)}"><span class="dot" style="background:${h.color}"></span>${esc(h.name)}</button>`).join('');
   const ann=(t.annotations||[]).length?`<section><h4 class="sec-h">Session annotations</h4><div class="annot">${t.annotations.map(a=>`<time>${esc(a.at)}</time><span>${a.type==='habit'?'Habit: ':a.type==='conf'?'Confluence: ':a.type==='bad'?'Went wrong: ':'Note: '}${esc(a.text)}</span>`).join('')}</div></section>`:'';
@@ -1299,7 +1467,7 @@ function drawBtPanel(t){
    <textarea data-tf="details" style="min-height:240px" placeholder="Write up the trade, or let Luma do it">${esc(t.details)}</textarea>
    <div class="shot-act"><button class="btn sm" data-act="tp-rewrite" id="aibtn">Rewrite with AI</button><span class="hint" id="aistat"></span></div></section>
   ${confSection(t)}
-  <section>${bulletSection(t,'bad','What went wrong','Anything that hurt this trade, one point each. Luma fills this in when you say “the bad things were…” or “what went wrong was…”.')}</section>
+  <section>${badSection(t)}</section>
   <section><h4 class="sec-h">Bad habits on this entry</h4>${habitPicker(t)}</section>
   ${ann}
   </div>`;
@@ -1312,7 +1480,7 @@ async function rewriteBtEntry(){
   if(!text){toast('Add some notes first, then I can rewrite them.');return}
   if(!aiBegin())return;
   const btn=$('#aibtn'),st=$('#aistat');if(btn)btn.disabled=true;if(st)st.textContent='Rewriting...';
-  const prompt=`You are Luma, a trading journal assistant. Rewrite this backtest journal entry into one clear write-up: a 2 sentence summary, a blank line, then 4 to 8 lines that each start with "- " (the read on the market, entry reason, execution, management, result, anything unusual, what went well, what to improve). If confluences are listed, end with a last line "Confluences: a, b, c." Use only the information given and never invent numbers. Reply with only the write-up text.
+  const prompt=`Rewrite this backtest journal entry into one clear write-up: a 2 sentence summary, a blank line, then 4 to 8 lines that each start with "- " (the read on the market, entry reason, execution, management, result, anything unusual, what went well, what to improve). If confluences are listed, end with a last line "Confluences: a, b, c." Use only the information given and never invent numbers or details that were not said. Plain, matter-of-fact tone: no cheerleading, no encouragement, no praise, no consoling, no exclamation points, no emojis. Just organize and clean up what is there. Reply with only the write-up text.
 Trade: ${t.symbol} ${t.direction} on ${t.date} at ${t.time}, risk ${t.risk||'unknown'}, result ${t.open?'open':t.pnl}, setup ${t.setup||'not set'}.
 Confluences: ${(t.confluences||[]).join(', ')||'none'}.
 What went wrong: ${(t.bad||[]).join(', ')||'none'}.
@@ -1323,12 +1491,30 @@ ${text.slice(0,7000)}`;
   catch(e){const s2=$('#aistat');if(s2)s2.textContent=aiErr(e)}
   const b2=$('#aibtn');if(b2)b2.disabled=false;aiEnd();
 }
+async function cleanupBadNotes(){
+  const t=curTrade();if(!t)return;
+  if(!AI){aiMissing();return}
+  const text=(t.badNotes||'').trim();
+  if(!text){toast('Type a few notes about what went wrong first.');return}
+  if(!aiBegin())return;
+  const btn=$('#badcleanbtn'),st=$('#badcleanstat');if(btn)btn.disabled=true;if(st)st.textContent='Cleaning up...';
+  const prompt=`Reorganize and lightly copyedit a trader's own rough notes about what went wrong on one trade. Only fix grammar and structure and split it into distinct points. Do not add opinions, encouragement, praise, advice, exaggeration or emojis, and do not invent anything they did not say. Say only what they wrote, just organized. Reply with only a JSON object: {"points": string[] (2 to 6 short, plain, direct phrases, each one distinct issue they mentioned)}.
+Notes: ${text.slice(0,4000)}`;
+  try{
+    const out=await AI.json(prompt,{});
+    if(out&&Array.isArray(out.points)&&out.points.length){t.bad=out.points.map(String).slice(0,6);persist();if(curId===t.id)drawPanel()}
+    else if(st)st.textContent='Could not make sense of that. Try rephrasing.';
+  }catch(e){if(st)st.textContent=aiErr(e)}
+  const b2=$('#badcleanbtn');if(b2)b2.disabled=false;aiEnd();
+}
 function aiBlock(a){
   const pts=(a.keyPoints||[]).map(x=>`<li>${esc(x)}</li>`).join('');
   const sug=(a.suggestedHabits||[]).map(n=>{const h=S.habits.find(x=>x.name.toLowerCase()===String(n).toLowerCase());return h?`<button class="chip" data-act="tp-addhab" data-id="${h.id}">Add “${esc(h.name)}”</button>`:''}).join('');
   const sc=(a.confluences||[]).map(c=>`<button class="chip" data-act="conf-pick" data-c="${esc(c)}">+ ${esc(c)}</button>`).join('');
   return `<div class="ai-out"><p>${esc(a.summary||'')}</p>${pts?`<h4>Key points</h4><ul>${pts}</ul>`:''}${sug?`<h4>Suggested bad-habit flags</h4><div class="hab-chips">${sug}</div>`:''}${sc?`<h4>Suggested confluences</h4><div class="hab-chips">${sc}</div>`:''}</div>`;
 }
+function openZoom(src){if(!src)return;$('#zoomimg').src=src;$('#zoom').hidden=false}
+function closeZoom(){$('#zoom').hidden=true;$('#zoomimg').src=''}
 function updateHead(t){
   const r=resultOf(t),b=$('#pbadge');if(b){b.className='badge '+r.c;b.textContent=r.l}
   const R=!t.open&&t.risk?t.pnl/t.risk:null,rr=$('#btpr');if(rr)rr.textContent=R==null?'—':R.toFixed(2)+'R';
@@ -1635,6 +1821,7 @@ function makeKeyAI(key){
 /* ---------- BACKTEST TAB ---------- */
 const sess={active:false,stream:null,vid:null,startedAt:0,log:[],tradeIds:[],listening:false,rec:null,timer:null,done:null,recap:'',heard:'',finalHeard:'',busy:false,want:false};
 const walk={text:'',shot:null,busy:false};
+const wvl={jid:'',n:0,points:null,busy:false};
 const canShare=()=>!!(navigator.mediaDevices&&navigator.mediaDevices.getDisplayMedia)&&!(window.matchMedia&&window.matchMedia('(pointer:coarse)').matches);
 const keyLabel=c=>String(c||'').replace(/^Key|^Digit/,'')||'?';
 const SR=()=>window.SpeechRecognition||window.webkitSpeechRecognition;
@@ -1653,9 +1840,18 @@ function patternBars(rows,kind,denomLabel){
   if(!rows.length)return `<p class="hint" style="margin:0">Nothing to show yet.</p>`;
   return `<div class="bars">${rows.map(r=>`<div class="bar-row"><div class="bar-label" title="${esc(r.label)}">${esc(r.label)}</div><div class="bar-track"><div class="bar-fill ${kind}" style="width:${Math.max(4,Math.round(r.share*100))}%"></div></div><div class="bar-val">${pct(r.share)}</div><div class="bar-sub">${esc(r.sub)}</div></div>`).join('')}</div>`;
 }
-function winnersVsLosers(ts){
+function wvlBlockHtml(cl,jid){
+  if(wvl.jid!==jid||wvl.n!==cl.length){wvl.points=null}
+  if(wvl.points&&wvl.points.length){
+    return `<div class="note" id="wvlout" style="margin-bottom:14px"><h4 style="margin:0 0 6px">Luma's take</h4><ul style="margin:0;padding-left:18px">${wvl.points.map(p=>`<li>${esc(p)}</li>`).join('')}</ul>
+     <div class="row" style="margin-top:10px"><button class="btn ghost sm" data-act="wvl-analyze" id="wvlbtn" ${wvl.busy?'disabled':''}>${wvl.busy?'Reading your entries...':'Re-analyze'}</button><span class="hint" id="wvlstat"></span></div></div>`;
+  }
+  return `<div class="note" id="wvlout" style="margin-bottom:14px"><p class="hint" style="margin:0 0 8px">Let Luma read through your full write-ups, not just the tags, and call out concrete, specific patterns.</p>
+   <button class="btn sm" data-act="wvl-analyze" id="wvlbtn" ${wvl.busy?'disabled':''}>${wvl.busy?'Reading your entries...':'Analyze with Luma'}</button><span class="hint" id="wvlstat"></span></div>`;
+}
+function winnersVsLosers(ts,jid){
   const cl=ts.filter(closed),W=cl.filter(t=>t.pnl>0),L=cl.filter(t=>t.pnl<0);
-  const head=`<div class="work-h"><h3>${icon('spark')}Winners vs losers</h3></div><p class="hint" style="margin:0 0 14px">What your winning and losing backtests have in common, from the confluences and the “what went wrong” points on each entry. ${cl.length?`Based on ${cl.length} closed entr${cl.length===1?'y':'ies'}: ${W.length} win${W.length===1?'':'s'}, ${L.length} loss${L.length===1?'':'es'}.`:''}</p>`;
+  const head=`<div class="work-h"><h3>${icon('spark')}Winners vs losers</h3></div><p class="hint" style="margin:0 0 14px">What your winning and losing backtests have in common. ${cl.length?`Based on ${cl.length} closed entr${cl.length===1?'y':'ies'}: ${W.length} win${W.length===1?'':'s'}, ${L.length} loss${L.length===1?'':'es'}.`:''}</p>`;
   if(cl.length<3||!W.length||!L.length){
     return `<div class="panel glass" style="margin-top:14px">${head}<div class="empty" style="border:0;padding:12px 0"><h3>Needs a few more entries</h3><div>Log at least one win and one loss, three closed entries in total, and this fills in. Tell Luma the confluences and what went wrong on each trade for the best results.</div></div></div>`;
   }
@@ -1666,17 +1862,42 @@ function winnersVsLosers(ts){
   const loseRows=[...bL.values()].map(e=>{const all=bA.get(e.k).n,inW=(bW.get(e.k)||{n:0}).n;return{label:e.label,k:e.k,share:e.n/L.length,gap:e.n/L.length-inW/W.length,sub:`in ${e.n} of ${L.length} losers · shows up on ${all} trade${all===1?'':'s'} in total`}})
     .sort((a,b)=>b.share-a.share||b.gap-a.gap).slice(0,5);
   const weakConf=[...cL.values()].map(e=>{const all=cA.get(e.k).n,wins=(cW.get(e.k)||{n:0}).n;return{label:e.label,n:all,wr:wins/all}}).filter(x=>x.n>=2&&x.wr<.5).sort((a,b)=>a.wr-b.wr).slice(0,3);
-  const bestGap=[...cW.values()].map(e=>{const inL=(cL.get(e.k)||{n:0}).n;return{label:e.label,w:e.n/W.length,l:inL/L.length,g:e.n/W.length-inL/L.length}}).filter(x=>x.g>0).sort((a,b)=>b.g-a.g)[0];
-  const worstGap=[...bL.values()].map(e=>{const inW=(bW.get(e.k)||{n:0}).n;return{label:e.label,l:e.n/L.length,w:inW/W.length,g:e.n/L.length-inW/W.length}}).filter(x=>x.g>0).sort((a,b)=>b.g-a.g)[0];
-  const takeaways=[bestGap?`Your winners usually have <b>${esc(bestGap.label)}</b>: it's in ${pct(bestGap.w)} of wins but only ${pct(bestGap.l)} of losses.`:'',worstGap?`Your losers usually come with <b>${esc(worstGap.label)}</b>: it's in ${pct(worstGap.l)} of losses but only ${pct(worstGap.w)} of wins.`:''].filter(Boolean);
   const small=cl.length<10?`<p class="hint" style="margin:10px 0 0">With fewer than 10 entries these patterns can shift a lot. Keep logging and they get more reliable.</p>`:'';
   return `<div class="panel glass" style="margin-top:14px">${head}
-   ${takeaways.length?`<div class="note" style="margin-bottom:14px">${takeaways.join('<br>')}</div>`:''}
+   ${wvlBlockHtml(cl,jid)}
    <div class="grid2">
     <div><h4 class="sec-h win">What your winners share</h4>${winRows.length?patternBars(winRows,'win'):'<p class="hint" style="margin:0">Your winning entries have no confluences listed yet. Tell Luma “the confluences were…” as you journal.</p>'}</div>
     <div><h4 class="sec-h loss">What your losers share</h4>${loseRows.length?patternBars(loseRows,'loss'):'<p class="hint" style="margin:0">Your losing entries have nothing listed under what went wrong yet. Tell Luma “the bad things were…” as you journal.</p>'}
      ${weakConf.length?`<p class="hint" style="margin:12px 0 0">Confluences that haven't been paying off: ${weakConf.map(x=>`<b>${esc(x.label)}</b> (${pct(x.wr)} win rate over ${x.n})`).join(', ')}.</p>`:''}</div>
    </div>${small}</div>`;
+}
+async function analyzeWinnersLosers(){
+  const j=btJournal(),ts=tradesOf(j.id).filter(closed),W=ts.filter(t=>t.pnl>0),L=ts.filter(t=>t.pnl<0);
+  if(!W.length||!L.length){toast('Log at least one win and one loss first.');return}
+  if(!AI){aiMissing();return}
+  if(!aiBegin())return;
+  wvl.busy=true;wvl.jid=j.id;wvl.n=ts.length;
+  const out=$('#wvlout');if(out)out.outerHTML=wvlBlockHtml(ts,j.id);
+  const brief=t=>{const r=!t.open&&t.risk?(t.pnl/t.risk).toFixed(2)+'R':money(t.pnl);return `${t.symbol} ${t.direction}, ${r}. Confluences: ${(t.confluences||[]).join(', ')||'none'}. What went wrong: ${(t.bad||[]).join(', ')||'none'}. Habits: ${habitNames(t).join(', ')||'none'}. Notes: ${(t.details||'').replace(/\s+/g,' ').slice(0,400)||'none'}`};
+  const winTxt=W.map(brief).join('\n---\n').slice(0,6000)||'none';
+  const loseTxt=L.map(brief).join('\n---\n').slice(0,6000)||'none';
+  const prompt=`Here are a trader's backtest journal entries, split into winners and losers. Read the actual write-ups on each one, not just the tag lists, and find concrete, specific patterns the entries genuinely support. Phrase each finding as one short, direct, second-person sentence, for example "All of your winners have a protected stop loss." or "You lose the most when you are chasing price." Only state things the entries actually support; never guess, never generalize past the evidence, never repeat the same point twice. Plain and factual. No hedging, no praise, no encouragement, no emojis. Reply with only a JSON object: {"insights": string[] (2 to 5 sentences)}.
+WINNERS (${W.length}):
+${winTxt}
+LOSERS (${L.length}):
+${loseTxt}`;
+  try{
+    const r=await AI.json(prompt,{});
+    if(r&&Array.isArray(r.insights)&&r.insights.length)wvl.points=r.insights.map(String).slice(0,5);
+    wvl.busy=false;
+    const o2=$('#wvlout');if(o2)o2.outerHTML=wvlBlockHtml(ts,j.id);
+    if(!(r&&Array.isArray(r.insights)&&r.insights.length)){const st=$('#wvlstat');if(st)st.textContent='Not enough there yet to say something specific.'}
+  }catch(e){
+    wvl.busy=false;
+    const o2=$('#wvlout');if(o2)o2.outerHTML=wvlBlockHtml(ts,j.id);
+    const st=$('#wvlstat');if(st)st.textContent=aiErr(e);
+  }
+  aiEnd();
 }
 
 function vBacktest(){
@@ -1693,7 +1914,7 @@ function vBacktest(){
   return `<div class="page">${bannerHtml(j,`${ts.length} entries, ${money(stats(ts).total)} total. Kept apart from your live journals.`,true)}
   ${sess.done?doneHtml():''}
   <div class="dg" style="margin-top:14px"><div class="c8 col">${logPanel(mode,share)}</div><div class="c4 col">${workOnPanel(ts,'From '+j.name,'bt','bt')}</div></div>
-  ${winnersVsLosers(ts)}
+  ${winnersVsLosers(ts,j.id)}
   ${cmds}
   <div class="sec-t"><h2>Backtest entries</h2></div><div class="inpage">${toolbarHtml(j)}<div id="jbody" data-j="${j.id}">${jBody(j)}</div></div></div>`;
 }
@@ -1789,7 +2010,7 @@ function foxUi(){
 }
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const LUMA={
-  wake:['Mhm?','Yeah?','Yea?','Mm-hm?','Yep?','Yeah, what’s up?','I’m listening.'],
+  wake:['Yeah?','Uh-huh?','Yep?','Mm-hmm?','Go ahead.','What’s up?','I’m listening.'],
   on:['Hi! I’m all ears. Just say hey Luma when you’re ready.','I’m on! Say hey Luma whenever you want to log something.'],
   off:['Okay, I’ll be quiet now. Switch me back on whenever you need me.','Going quiet. Wake me up when you’re ready for more.'],
   empty:['Hmm, I heard my name but not the rest. Try me again?','Did you need something? I didn’t catch it.'],
@@ -1815,14 +2036,21 @@ function pickVoice(){
   for(const re of pref){const v=vs.find(x=>re.test(x.name));if(v)return v}
   return vs.find(v=>!/\bmale\b|david|mark|daniel|alex|fred|george|james|guy|ryan|thomas|oliver/i.test(v.name))||vs[0];
 }
+/* Some TTS voices don't have these interjections in their pronunciation dictionary and spell them out letter by letter instead. Swap in spellings that read as a natural sound. */
+function speakable(t){
+  return String(t||'')
+    .replace(/\bmm+-?hm+\b/gi,'mmhmm')
+    .replace(/\bmhm+\b/gi,'mmhmm')
+    .replace(/\buh-?huh\b/gi,'uh huh');
+}
 function say(t,o){
   o=o||{};
   slog('luma',t);
   if(S.settings.foxSpeak===false||!('speechSynthesis' in window))return;
   try{
-    const u=new SpeechSynthesisUtterance(t),v=pickVoice();
+    const u=new SpeechSynthesisUtterance(speakable(t)),v=pickVoice();
     if(v){u.voice=v;u.lang=v.lang}
-    u.rate=1.06;u.pitch=1.12;
+    u.rate=1.02;u.pitch=1.0;
     const guard=o.guard!==false,done=()=>setTimeout(()=>{fox.speaking=false},500);
     u.onend=done;u.onerror=done;
     speechSynthesis.cancel();
@@ -2986,6 +3214,7 @@ function renderTabbar(){
 }
 const copyrightText=()=>SITE_OWNER?`© ${new Date().getFullYear()} ${SITE_OWNER}. All rights reserved.`:'';
 function render(){
+  S.journals.forEach(j=>{if(j.font)ensureFont(j.font);if(j.descFont)ensureFont(j.descFont)});
   applyTheme();applyBackground();renderTop();renderTabbar();$('#foot').textContent=copyrightText();
   if(S.ui.view==='admin'&&!isAdmin())S.ui.view='dashboard';
   const v=S.ui.view,fn={dashboard:vDash,journal:vJournal,backtest:vBacktest,habits:vHabits,news:vNews,admin:vAdmin}[v]||vDash;
@@ -3045,18 +3274,23 @@ function closeDlg(quiet){
 function custHtml(j){
   const d=`data-j="${j.id}"`;
   return `<div class="fields" style="grid-template-columns:2fr 1fr"><label class="f">Journal name<input data-cf="name" ${d} value="${esc(j.name)}"></label><label class="f">Icon<input data-cf="icon" ${d} value="${esc(j.icon)}" maxlength="4"></label></div>
+  <div><h4 class="sec-h">Fonts</h4><div class="fields">
+   <label class="f">Journal name<select data-cf="font" ${d}>${FONTS.map(f=>`<option value="${f[0]}" ${(j.font||'default')===f[0]?'selected':''}>${esc(f[1])}</option>`).join('')}</select></label>
+   <label class="f">Description<select data-cf="descfont" ${d}>${FONTS.map(f=>`<option value="${f[0]}" ${(j.descFont||'clean')===f[0]?'selected':''}>${esc(f[1])}</option>`).join('')}</select></label>
+  </div>
+  <div class="font-prev"><span style="${nameFont(j)}">${esc(j.name||'Journal name')}</span><small style="${descFont(j)}">${esc(j.desc||'Your description appears like this.')}</small></div></div>
   <label class="f">Description<textarea data-cf="desc" ${d} maxlength="400" placeholder="What is this journal for? It shows under the banner." style="min-height:72px">${esc(j.desc||'')}</textarea></label>
   <div class="opt">${EMOJI.map(e=>`<button class="chip ${j.icon===e?'on':''}" data-act="emoji" data-e="${e}" ${d} aria-label="Use ${e} as icon">${e}</button>`).join('')}</div>
-  <div><h4 class="sec-h">Icon image</h4><div class="row"><label class="btn sm">Upload icon image<input type="file" accept="image/*" hidden data-cf="iconimg" ${d}></label>${j.iconImg||j.iconMediaId?`<span class="row" style="gap:10px">${iconHtml(j,36)}<button class="btn ghost sm" data-act="icon-clear" ${d}>Use emoji instead</button></span>`:''}</div><p class="hint" style="margin:6px 0 0">A PNG with a transparent background shows just your logo, with no box behind it. Animated GIF and WEBP icons play as uploaded.</p></div>
+  <div><h4 class="sec-h">Icon image</h4><div class="row"><label class="btn sm">Upload icon image<input type="file" accept="image/*" hidden data-cf="iconimg" ${d}></label>${j.iconImg||j.iconMediaId?`<span class="row" style="gap:10px">${iconHtml(j,36)}<button class="btn ghost sm" data-act="icon-clear" ${d}>Use emoji instead</button></span>`:''}</div><p class="hint" style="margin:6px 0 0">You position and zoom it before it saves. A PNG with a transparent background shows just your logo, with no box behind it, and animated GIF or WEBP icons keep moving.</p></div>
   <div><h4 class="sec-h">Accent color</h4><div class="row"><div class="sw">${ACCENTS.map(c=>`<button style="background:${c}" data-act="set-accent" data-c="${c}" ${d} aria-pressed="${j.accent===c}" aria-label="Accent ${c}"></button>`).join('')}</div><input type="color" data-cf="accent" ${d} value="${esc(j.accent)}" aria-label="Custom accent color"></div></div>
   <div><h4 class="sec-h">Banner</h4><div class="bn">${BANNERS.map((b,i)=>`<button style="background:${b}" data-act="set-banner" data-i="${i}" ${d} aria-pressed="${j.banner.type==='gradient'&&j.banner.value===b}" aria-label="Banner style ${i+1}"></button>`).join('')}</div>
    <div class="row" style="margin-top:10px"><label class="btn sm">Upload banner image or video<input type="file" accept="image/*,video/*" hidden data-cf="banner" ${d}></label>${j.banner.type==='image'||j.banner.type==='video'?`<button class="btn ghost sm" data-act="banner-clear" ${d}>Use a gradient instead</button>`:''}</div>
-   <p class="hint" style="margin:6px 0 0">Animated GIF/WEBP images and short video clips (muted, looping) both work.</p></div>
+   <p class="hint" style="margin:6px 0 0">You position and zoom images before they save, and animated GIF or WEBP files keep moving. Short video clips (muted, looping) work too and fill the banner as they are.</p></div>
   <div><h4 class="sec-h">Background effect</h4><div class="seg" role="group" aria-label="Effect">${EFFECTS.map(e=>`<button data-act="set-effect" data-e="${e[0]}" ${d} aria-pressed="${j.effect===e[0]}">${e[1]}</button>`).join('')}</div></div>
   <div><h4 class="sec-h">Card density</h4><div class="seg" role="group" aria-label="Density"><button data-act="set-density" data-d="comfortable" ${d} aria-pressed="${j.density!=='compact'}">Comfortable</button><button data-act="set-density" data-d="compact" ${d} aria-pressed="${j.density==='compact'}">Compact</button></div></div>
   <div class="row" style="justify-content:space-between;border-top:1px solid var(--line);padding-top:16px"><span class="hint">Changes save as you make them.</span><button class="btn danger" data-act="del-journal" ${d}>Delete this journal</button></div>`;
 }
-function openCust(jid){const j=S.journals.find(x=>x.id===jid);if(!j)return;dlgKind='cust';dlgJ=jid;openDlg(`Customize ${j.name}`,custHtml(j))}
+function openCust(jid){const j=S.journals.find(x=>x.id===jid);if(!j)return;ensureAllFonts();dlgKind='cust';dlgJ=jid;openDlg(`Customize ${j.name}`,custHtml(j));hydrate($('#dlgb'))}
 function drawCust(){const j=S.journals.find(x=>x.id===dlgJ);const b=$('#dlgb');if(j&&b&&dlgKind==='cust'){b.innerHTML=custHtml(j);hydrate(b);applyTheme();render()}}
 function drawSettings(){const b=$('#dlgb');if(b&&dlgKind==='settings')b.innerHTML=settingsHtml()}
 function settingsHtml(){
@@ -3167,8 +3401,10 @@ const A={
     if(!t.habits.includes(h.id))t.habits.push(h.id);
     persist();drawPanel();renderTop();toast(`Added “${h.name}” and flagged it on this entry.`);
   },
-  'bl-add':el=>{const t=curTrade(),f=el.dataset.f,i=$('#bl-in-'+f),v=((i&&i.value)||'').trim();if(!t||!v)return;(t[f]=t[f]||[]).push(v.charAt(0).toUpperCase()+v.slice(1));persist();drawPanel();const n=$('#bl-in-'+f);if(n)n.focus()},
-  'bl-del':el=>{const t=curTrade();if(!t)return;t[el.dataset.f].splice(Number(el.dataset.i),1);persist();drawPanel()},
+  'tp-cleanbad':()=>cleanupBadNotes(),
+  'wvl-analyze':()=>analyzeWinnersLosers(),
+  'shot-zoom':el=>openZoom(el.currentSrc||el.src),
+  'zoom-close':closeZoom,
   'sess-cap':async()=>{
     const last=lastBt();
     if(!last){toast('Log an entry first, then save screenshots to it.');return}
@@ -3241,16 +3477,18 @@ document.addEventListener('click',e=>{
   const fn=A[el.dataset.act];if(fn){if(el.tagName==='A')e.preventDefault();fn(el,e)}
 });
 $('#dlg').addEventListener('click',e=>{if(e.target===$('#dlg'))closeDlg()});
+$('#zoom').addEventListener('click',e=>{if(e.target.id==='zoom')closeZoom()});
 document.addEventListener('keydown',e=>{
   const tr=e.target.closest&&e.target.closest('tr[data-act]');
   if(tr&&(e.key==='Enter'||e.key===' ')){e.preventDefault();A[tr.dataset.act](tr)}
+  if((e.key==='Enter'||e.key===' ')&&e.target.tagName==='IMG'&&e.target.dataset.act){e.preventDefault();A[e.target.dataset.act](e.target)}
   if(e.key==='Enter'){
     if(e.target.id==='chatin'){e.preventDefault();A['chat-send']();return}
     if(e.target.id==='confin'){e.preventDefault();A['conf-add']();return}
     if(e.target.id==='newhab-in'){e.preventDefault();A['tp-newhab']();return}
-    if(e.target.dataset&&e.target.dataset.blin){e.preventDefault();A['bl-add']({dataset:{f:e.target.dataset.blin}});return}
     if(e.target.id==='gsearch'){e.preventDefault();S.ui.q=e.target.value.trim();S.ui.resultFilter='all';S.ui.day='';S.ui.view='journal';persist();render();window.scrollTo(0,0);return}
   }
+  if(e.key==='Escape'&&!$('#zoom').hidden){closeZoom();return}
   if(e.key==='Escape'&&$('#modal').hidden){
     if(!$('#dlg').hidden)closeDlg();else if(curId)closePanel();else if(chat.open){chat.open=false;chatRender()}
   }
@@ -3287,11 +3525,6 @@ async function saveVideo(t,file){
   if(curId===t.id)drawPanel();
   if(ok)toast(`Video saved (${fmtSize(file.size)}).`);
   else toast('Browser storage could not hold this video, so it will only last until you close the page. Free up disk space, or keep the original file.');
-}
-function blEdit(el,type){
-  const t=curTrade();if(!t)return;const f=el.dataset.bl,i=Number(el.dataset.i);if(!t[f])return;
-  t[f][i]=el.value;saveSoon();
-  if(type==='change'&&!el.value.trim()){t[f].splice(i,1);persist();drawPanel()}
 }
 function confEdit(el,type){
   const t=curTrade();if(!t)return;const i=Number(el.dataset.conf);
@@ -3339,15 +3572,17 @@ function custField(el,type){
   if(f==='importjson'){if(type==='change'&&el.files[0])importJsonBackup(el.files[0]);return}
   if(f==='iconimg'){
     if(type==='change'&&el.files[0]){
-      const file=el.files[0],j=jFrom(el);
-      if(ANIM_IMG(file.type)){
-        scanTransparency(file).then(async transparent=>{
-          const id=uid('img');await media.put(id,file);
-          j.iconMediaId=id;j.iconImg='';j.iconOpaque=!transparent;persist();drawCust();
-        }).catch(()=>toast('That image could not be read.'));
-      }else{
-        processIcon(file).then(r=>{j.iconMediaId='';j.iconImg=r.url;j.iconOpaque=!r.transparent;persist();drawCust()}).catch(()=>toast('That image could not be read.'));
-      }
+      const file=el.files[0],j=jFrom(el);el.value='';
+      imageAdjuster(file,{title:'Position your icon',aspect:1,round:true,okLabel:'Use this icon',hint:'Transparent areas stay transparent. Animated files keep moving.'})
+        .then(async r=>{
+          if(!r)return;
+          const old=j.iconMediaId;
+          let transparent=false;try{transparent=await scanTransparency(file)}catch(e){}
+          const id=await storeAdjusted(r,true);
+          j.iconMediaId=id;j.iconPos=r.pos;j.iconImg='';j.iconOpaque=!transparent;
+          if(old&&old!==id)media.del(old);
+          persist();drawCust();
+        });
     }
     return;
   }
@@ -3365,32 +3600,37 @@ function custField(el,type){
   }
   if(f==='bgimage'||f==='bgvideo'){
     if(type==='change'&&el.files[0]){
-      const file=el.files[0],id=uid('img'),old=S.settings.bg&&S.settings.bg.mediaId;
-      media.put(id,file).then(()=>{
-        S.settings.bg={type:f==='bgvideo'?'video':'image',mediaId:id};
-        if(old)media.del(old);
+      const file=el.files[0],old=S.settings.bg&&S.settings.bg.mediaId;el.value='';
+      const keep=(id,pos)=>{
+        S.settings.bg={type:f==='bgvideo'?'video':'image',mediaId:id,pos:pos||null};
+        if(old&&old!==id)media.del(old);
         persist();applyBackground();drawSettings();
-      }).catch(()=>toast('That file could not be saved.'));
+      };
+      if(f==='bgvideo'){const id=uid('img');media.put(id,file).then(()=>keep(id,null)).catch(()=>toast('That file could not be saved.'))}
+      else imageAdjuster(file,{title:'Position your background',aspect:(window.innerWidth||1600)/(window.innerHeight||900),realW:window.innerWidth||1600,okLabel:'Use this background',hint:'The frame matches your screen. Animated files keep moving.'})
+        .then(async r=>{if(!r)return;try{keep(await storeAdjusted(r),r.pos)}catch(e){toast('That file could not be saved.')}});
     }
     return;
   }
   const j=jFrom(el);
   if(f==='banner'){
     if(type==='change'&&el.files[0]){
-      const file=el.files[0];
-      if(file.type.startsWith('video/')||ANIM_IMG(file.type)){
-        const id=uid('img'),old=j.banner&&j.banner.mediaId;
-        media.put(id,file).then(()=>{j.banner={type:file.type.startsWith('video/')?'video':'image',mediaId:id};if(old)media.del(old);persist();drawCust()}).catch(()=>toast('That file could not be saved.'));
+      const file=el.files[0],old=j.banner&&j.banner.mediaId;el.value='';
+      const keep=(id,pos,kind)=>{j.banner={type:kind,mediaId:id,pos:pos||null};if(old&&old!==id)media.del(old);persist();drawCust()};
+      if(file.type.startsWith('video/')){
+        const id=uid('img');media.put(id,file).then(()=>keep(id,null,'video')).catch(()=>toast('That file could not be saved.'));
       }else{
-        toJpeg(file,1600,.8).then(blobToDataUrl).then(u=>{j.banner={type:'image',value:u};persist();drawCust()}).catch(()=>toast('That image could not be read.'));
+        imageAdjuster(file,{title:'Position your banner',aspect:liveAspect('.banner',1200/280),realW:liveWidth('.banner',1200),okLabel:'Use this banner',hint:'The frame is the real banner shape. Animated files keep moving.'})
+          .then(async r=>{if(!r)return;try{keep(await storeAdjusted(r),r.pos,'image')}catch(e){toast('That file could not be saved.')}});
       }
     }
     return;
   }
   if(f==='name'){j.name=el.value||'Untitled';saveSoon();if(type==='change')drawCust()}
-  else if(f==='icon'){j.icon=el.value||'📈';j.iconImg='';saveSoon();if(type==='change')drawCust()}
+  else if(f==='icon'){j.icon=el.value||'📈';if(el.value){j.iconImg='';j.iconPos=null}saveSoon();if(type==='change')drawCust()}
   else if(f==='accent'){j.accent=el.value;applyTheme();saveSoon();if(type==='change')drawCust()}
   else if(f==='desc'){j.desc=el.value;saveSoon();if(type==='change'){persist();drawCust()}}
+  else if(f==='font'||f==='descfont'){const id=el.value;ensureFont(id);if(f==='font')j.font=id;else j.descFont=id;persist();drawCust()}
 }
 function pageIn(el,type){
   const k=el.dataset.in;
@@ -3416,7 +3656,6 @@ const onField=e=>{
   const el=e.target;if(!el.dataset)return;
   if(el.dataset.tf)tradeField(el,e.type);
   else if(el.dataset.conf!==undefined)confEdit(el,e.type);
-  else if(el.dataset.bl!==undefined)blEdit(el,e.type);
   else if(el.dataset.cf)custField(el,e.type);
   else if(el.dataset.bt)btField(el,e.type);
   else if(el.dataset.in)pageIn(el,e.type);
@@ -3452,7 +3691,7 @@ function normalize(){
   S.ui.bt={...b.ui.bt,...(S.ui.bt||{})};
   S.reviews=S.reviews||[];S.remind=S.remind||{};S.habits=S.habits&&S.habits.length?S.habits:baseHabits();
   S.journals.forEach(j=>{if(!j.kind)j.kind='live';if(!j.density)j.density='comfortable';if(S.demo&&j.id==='j2'&&j.accent==='#f0b04a')j.accent='#c6f432';if(S.demo&&j.kind==='backtest'&&j.accent==='#7aa7ff')j.accent='#f5b731';if(['#c6f432','#22e6ff'].includes(j.accent))j.accent='#3b82f6'});
-  S.trades.forEach(t=>{t.habits=t.habits||[];t.imageIds=t.imageIds||[];t.annotations=t.annotations||[];t.confluences=t.confluences||[];t.good=t.good||[];t.bad=t.bad||[]});
+  S.trades.forEach(t=>{t.habits=t.habits||[];t.imageIds=t.imageIds||[];t.annotations=t.annotations||[];t.confluences=t.confluences||[];t.good=t.good||[];t.bad=t.bad||[];if(t.badNotes==null)t.badNotes=t.bad.length?t.bad.join('. ')+'.':''});
   S.trades.forEach(t=>{
     if(isBt(jOf(t))&&!t.merged){
       const parts=[];if(t.ai&&t.ai.summary)parts.push(t.ai.summary);if(t.details)parts.push(t.details);if(t.outliers)parts.push('Outliers: '+t.outliers);
@@ -3539,7 +3778,8 @@ async function applyBackground(){
   if(!host)return;
   const u=await media.url(bg.mediaId);
   if(!u){host.classList.remove('on');host.innerHTML='';return}
-  host.innerHTML=bg.type==='video'?`<video src="${u}" autoplay loop muted playsinline></video>`:`<img src="${u}" alt="">`;
+  const ps=bg.pos?` style="${fitStyle(bg.pos)}"`:'';
+  host.innerHTML=bg.type==='video'?`<video src="${u}" autoplay loop muted playsinline${ps}></video>`:`<img src="${u}" alt=""${ps}>`;
   host.classList.add('on');
 }
 (async function init(){
