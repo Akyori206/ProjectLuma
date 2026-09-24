@@ -333,6 +333,15 @@ video.vid{width:100%;border-radius:14px;background:#000;max-height:380px}
 .dlg-h{position:sticky;top:0;background:var(--panel);display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line);z-index:1}
 .dlg-h h3{flex:1;font-size:19px;margin:0}
 .dlg-b{padding:18px 20px;display:grid;gap:20px}
+.tour-step{text-align:center;padding:8px 6px 4px}
+.tour-ic{width:60px;height:60px;border-radius:50%;background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent);display:grid;place-items:center;margin:0 auto 16px}
+.tour-ic .ic{width:28px;height:28px}
+.tour-step h3{margin:0 0 10px;font-size:20px}
+.tour-step p{margin:0;color:var(--ink2);line-height:1.55}
+.tour-dots{display:flex;justify-content:center;gap:6px;margin:20px 0 4px}
+.tour-dots span{width:7px;height:7px;border-radius:50%;background:var(--line2)}
+.tour-dots span.on{background:var(--accent);width:18px;border-radius:4px}
+.tour-nav{display:flex;justify-content:space-between;gap:10px}
 .sw{display:flex;flex-wrap:wrap;gap:8px}
 .sw button{width:32px;height:32px;border-radius:50%;border:2px solid transparent;outline:1px solid var(--line2)}
 .sw button[aria-pressed=true]{border-color:var(--panel);outline:2px solid var(--ink)}
@@ -807,6 +816,23 @@ const eventDate=e=>{const [y,m,d]=e.date.split('-').map(Number);const [hh,mm]=e.
 
 /* ---------- seed ---------- */
 const CONFS=['Higher-timeframe trend','Key level retest','Liquidity sweep','Volume confirmation','Session open drive','Fib 61.8 pullback','News catalyst','Momentum divergence'];
+/* ICT (Inner Circle Trader) terms traders may say when journaling by voice. Fed to the AI so it recognizes and spells these correctly instead of mishearing them as unrelated words, especially off a rough speech-to-text transcript. */
+const ICT_GLOSSARY=`Trading terms the trader may use (ICT / smart-money concepts) — use this to recognize and correctly spell them even if the transcript is garbled or misheard, and never substitute a different word or invent an unrelated phrase for one of these:
+FVG (fair value gap): a 3-candle price imbalance that price often returns to fill.
+IFVG (inverse/inversion fair value gap): an FVG that price broke through, which then acts as support or resistance the other way.
+Order block (OB): the last opposing candle before a strong move, marking likely institutional orders.
+Breaker block: a failed order block that flips role, old support becomes resistance or the reverse.
+Mitigation / mitigation block: price returning to an order block or imbalance to fill leftover orders before continuing the original direction.
+Key opens: reference price levels such as the midnight open, true day open, London open, New York open, or Sunday open.
+Protected high / protected low: a swing high or low that has not been taken out yet, treated as a level likely to hold or react from.
+Liquidity pool / liquidity sweep / liquidity grab: a cluster of resting stop orders above a high or below a low that price runs into, often just before reversing.
+BOS (break of structure) / CHoCH (change of character): signals that market structure has shifted direction.
+Premium / discount: whether price sits above (premium) or below (discount) the midpoint of a range.
+OTE (optimal trade entry): the 62% to 79% retracement zone of a move.
+PD array: a price-delivery reference such as an FVG, order block, or liquidity level used to plan entries.
+Displacement: a fast, strong directional move that often creates a fair value gap.
+Judas swing: an early, false move that sweeps liquidity before the real move happens.
+If they use a short technical term or abbreviation not on this list, keep their exact wording rather than guessing or replacing it with a different phrase.`;
 function defaultSettings(){return{symbol:'NQ',hotkey:'KeyV',wake:'fox',foxSpeak:true,owner:'J Soto',aiParse:true,minBefore:15,newsCountries:['USD'],newsImpact:['high','medium'],accounts:[],keywords:['rate','tariff','CPI'],bg:{type:'galaxy'}}}
 function baseHabits(){return [['Chased entry','#f2766b'],['Moved stop','#f0b04a'],['Oversized','#c084fc'],['Revenge trade','#fb7185'],['Exited early','#60a5fa'],['Ignored plan','#94a3b8']].map((h,i)=>({id:'h'+(i+1),name:h[0],color:h[1]}))}
 function monthStart(d){return iso(new Date(d.getFullYear(),d.getMonth(),1))}
@@ -1480,14 +1506,15 @@ async function rewriteBtEntry(){
   if(!text){toast('Add some notes first, then I can rewrite them.');return}
   if(!aiBegin())return;
   const btn=$('#aibtn'),st=$('#aistat');if(btn)btn.disabled=true;if(st)st.textContent='Rewriting...';
-  const prompt=`Rewrite this backtest journal entry into one clear write-up: a 2 sentence summary, a blank line, then 4 to 8 lines that each start with "- " (the read on the market, entry reason, execution, management, result, anything unusual, what went well, what to improve). If confluences are listed, end with a last line "Confluences: a, b, c." Use only the information given and never invent numbers or details that were not said. Plain, matter-of-fact tone: no cheerleading, no encouragement, no praise, no consoling, no exclamation points, no emojis. Just organize and clean up what is there. Reply with only the write-up text.
+  const prompt=`Rewrite this backtest journal entry into a single clean, organized paragraph covering only what was actually said (the read on the market, entry reason, execution, management, result, anything unusual). Do not use dashes, bullet points, or line breaks, and do not add labeled sections like "Confluences:" or "What went wrong:" — those are tracked separately, so only mention a confluence or a mistake in the paragraph if the trader wove it into their own account of the trade. Use only the information given and never invent numbers or details that were not said. Plain, matter-of-fact tone: no cheerleading, no encouragement, no praise, no consoling, no exclamation points, no emojis. Just organize and clean up what is there, nothing added. Reply with only the paragraph text.
+${ICT_GLOSSARY}
 Trade: ${t.symbol} ${t.direction} on ${t.date} at ${t.time}, risk ${t.risk||'unknown'}, result ${t.open?'open':t.pnl}, setup ${t.setup||'not set'}.
-Confluences: ${(t.confluences||[]).join(', ')||'none'}.
-What went wrong: ${(t.bad||[]).join(', ')||'none'}.
+Confluences already tracked separately (do not repeat as a labeled line): ${(t.confluences||[]).join(', ')||'none'}.
+What went wrong already tracked separately (do not repeat as a labeled line): ${(t.bad||[]).join(', ')||'none'}.
 Bad habits flagged: ${habitNames(t).join(', ')||'none'}.
 Current text:
 ${text.slice(0,7000)}`;
-  try{const r=await AI(prompt,{});t.details=withConfLine(String(r.text||'').trim(),t.confluences||[],t.bad||[]);persist();if(curId===t.id)drawPanel()}
+  try{const r=await AI(prompt,{});t.details=String(r.text||'').trim();persist();if(curId===t.id)drawPanel()}
   catch(e){const s2=$('#aistat');if(s2)s2.textContent=aiErr(e)}
   const b2=$('#aibtn');if(b2)b2.disabled=false;aiEnd();
 }
@@ -1499,6 +1526,7 @@ async function cleanupBadNotes(){
   if(!aiBegin())return;
   const btn=$('#badcleanbtn'),st=$('#badcleanstat');if(btn)btn.disabled=true;if(st)st.textContent='Cleaning up...';
   const prompt=`Reorganize and lightly copyedit a trader's own rough notes about what went wrong on one trade. Only fix grammar and structure and split it into distinct points. Do not add opinions, encouragement, praise, advice, exaggeration or emojis, and do not invent anything they did not say. Say only what they wrote, just organized. Reply with only a JSON object: {"points": string[] (2 to 6 short, plain, direct phrases, each one distinct issue they mentioned)}.
+${ICT_GLOSSARY}
 Notes: ${text.slice(0,4000)}`;
   try{
     const out=await AI.json(prompt,{});
@@ -1540,6 +1568,7 @@ async function summarizeRecap(){
   const wantImg=AICAPS&&AICAPS.images&&(t.imageIds||[]).length;
   if(wantImg){try{const b=await media.get(t.imageIds[Math.min(pImg,t.imageIds.length-1)]);if(b)opts.images=[b]}catch(e){}}
   const prompt=`You are helping a day trader review one trade. ${opts.images?'The attached image is a screenshot of the trade chart. ':''}Use only the information below. Reply with only a JSON object: {"summary": string (2 sentences), "keyPoints": string[] (3 to 5 short points), "suggestedHabits": string[] (only names from the allowed list that clearly apply), "confluences": string[] (up to 5 short phrases for what lined up for the entry), "didWell": string[] (up to 4 short points), "didPoorly": string[] (up to 4 short points)}.
+${ICT_GLOSSARY}
 Allowed habit names: ${S.habits.map(h=>h.name).join(', ')}
 Trade: ${t.symbol} ${t.direction} on ${t.date} at ${t.time}, risk ${t.risk||'unknown'}, result ${t.open?'open':t.pnl}, setup ${t.setup||'not set'}.
 Notes: ${t.details||'none'}
@@ -2010,7 +2039,7 @@ function foxUi(){
 }
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const LUMA={
-  wake:['Yeah?','Uh-huh?','Yep?','Mm-hmm?','Go ahead.','What’s up?','I’m listening.'],
+  wake:['Yeah?','Yep?','Go ahead.','What’s up?','I’m listening.','Ready when you are.','Sure, go ahead.'],
   on:['Hi! I’m all ears. Just say hey Luma when you’re ready.','I’m on! Say hey Luma whenever you want to log something.'],
   off:['Okay, I’ll be quiet now. Switch me back on whenever you need me.','Going quiet. Wake me up when you’re ready for more.'],
   empty:['Hmm, I heard my name but not the rest. Try me again?','Did you need something? I didn’t catch it.'],
@@ -2036,12 +2065,12 @@ function pickVoice(){
   for(const re of pref){const v=vs.find(x=>re.test(x.name));if(v)return v}
   return vs.find(v=>!/\bmale\b|david|mark|daniel|alex|fred|george|james|guy|ryan|thomas|oliver/i.test(v.name))||vs[0];
 }
-/* Some TTS voices don't have these interjections in their pronunciation dictionary and spell them out letter by letter instead. Swap in spellings that read as a natural sound. */
+/* Many TTS voices don't have these filler interjections in their pronunciation dictionary and spell them out letter by letter instead (e.g. "Mhm?" becomes "M H M"). No respelling reliably fixes that across voices, so swap them for ordinary dictionary words that mean the same thing. */
 function speakable(t){
   return String(t||'')
-    .replace(/\bmm+-?hm+\b/gi,'mmhmm')
-    .replace(/\bmhm+\b/gi,'mmhmm')
-    .replace(/\buh-?huh\b/gi,'uh huh');
+    .replace(/\bmm+-?hm+\b/gi,'yeah')
+    .replace(/\bmhm+\b/gi,'yeah')
+    .replace(/\buh-?huh\b/gi,'yeah');
 }
 function say(t,o){
   o=o||{};
@@ -2288,16 +2317,17 @@ function localStructure(text){
   }
   const facts=[];if(rk)facts.push('Risked $'+rk[1]);if(pnl!=null)facts.push('result '+money(pnl));else facts.push('result still open');
   const rest=sents.filter(s=>!/\bconfluences?\b/i.test(s)&&!BADRE.test(s)&&!(/^(?:hey |yo )?(?:journal|log|record|write up)\b/i.test(s)&&s.split(/\s+/).length<7));
-  const entry=[facts.length?'- '+facts.join(', ')+'.':''].concat(rest.map(s=>'- '+s.replace(/\s*[.!]+$/,'')+'.')).filter(Boolean).join('\n');
+  const entry=[facts.length?facts.join(', ')+'.':''].concat(rest.map(s=>s.replace(/\s*[.!]+$/,'')+'.')).filter(Boolean).join(' ');
   const habs=sents.concat(bad).filter(s=>/(mistake|bad habit|shouldn'?t|chased|moved my stop|revenge|oversiz|too early|ignored)/i.test(s)).map(s=>matchHabit(s)).filter(Boolean).map(h=>h.name);
   return{symbol:sy?SYMS[sy[1]]:null,direction:dir,risk:rk?parseFloat(rk[1]):null,pnl,time,setup:null,entry,confluences:conf.slice(0,8),wentWrong:bad.slice(0,8),habits:[...new Set(habs)].slice(0,2)};
 }
 async function aiStructure(text,shotId){
   const opts={modelTier:'default'};
   if(shotId&&AICAPS&&AICAPS.images){try{const b=await media.get(shotId);if(b)opts.images=[b]}catch(e){}}
-  const prompt=`You are Luma, a trading journal assistant. A trader talked through one trade. Turn the walkthrough into one journal entry. ${opts.images?'The attached image is the chart they were looking at. ':''}Use only what they said or what is visible; never invent numbers. If they say the result is blank, pending, open or not known, set pnl to null. Reply with only a JSON object:
+  const prompt=`You are Luma, a trading journal assistant. A trader talked through one trade. Turn the walkthrough into one journal entry. ${opts.images?'The attached image is the chart they were looking at. ':''}Use only what they said or what is visible; never invent numbers or details, and never add anything they did not say. If they say the result is blank, pending, open or not known, set pnl to null. Reply with only a JSON object:
 {"symbol": string|null, "direction": "long"|"short"|null, "risk": number|null, "pnl": number|null (negative for a loss), "time": "HH:MM" 24-hour if they said when they entered, else null, "setup": string|null, "confluences": string[] (short phrases; when they say things like "the confluences were ...", list each one), "wentWrong": string[] (short phrases for the bad things about the trade: mistakes, weak spots, anything that hurt it; when they say things like "the bad things were ...", "what went wrong was ..." or "my mistakes were ...", list each one), "habits": string[] (bad habits they admitted to; prefer names from the allowed list, otherwise a short new name), "entry": string}
-"entry" is the single, complete write-up of the trade: first a 2 sentence summary, then a blank line, then 4 to 8 lines that each start with "- " covering the read on the market, the entry reason, execution, trade management, the result, anything unusual, what went well and what to do differently. If there are confluences, add a line "Confluences: a, b, c." and if anything went wrong, finish with a line "What went wrong: a, b." so both are part of the summary.
+"entry" is a single, clean, organized paragraph that just cleans up what they actually said (grammar and flow only) — the read on the market, entry reason, execution, management, the result, anything unusual. No dashes, no bullet points, no line breaks, no labeled sections. Confluences and what went wrong are already tracked separately in their own fields above, so do not add a labeled "Confluences:" or "What went wrong:" line to the entry — only mention one of those inside the paragraph if the trader wove it naturally into their own account of the trade.
+${ICT_GLOSSARY}
 Allowed habit names: ${S.habits.map(h=>h.name).join(', ')}
 Walkthrough: ${text.slice(0,7000)}`;
   const out=await AI.json(prompt,opts);
@@ -2321,7 +2351,7 @@ async function entryFromText(text,shotId){
   const conf=list(data.confluences).map(c=>c.charAt(0).toUpperCase()+c.slice(1));
   const bad=list(data.wentWrong||data.bad||data.mistakes).map(c=>c.charAt(0).toUpperCase()+c.slice(1));
   const t=blankTrade({journalId:btJournal().id,symbol:String(data.symbol||S.settings.symbol).toUpperCase(),direction:data.direction==='short'?'short':'long',risk:Math.abs(Number(data.risk))||0,
-    pnl:hasPnl?pnl:0,open:!hasPnl,setup:data.setup?String(data.setup):'',details:withConfLine(data.entry||data.details||text,conf,bad),bad:[],
+    pnl:hasPnl?pnl:0,open:!hasPnl,setup:data.setup?String(data.setup):'',details:String(data.entry||data.details||text).trim(),bad:[],
     habits:habs,transcript:text,imageIds:shotId?[shotId]:[],ai:null,date:iso(new Date()),time:tm,merged:true});
   addConfs(t,conf);addBad(t,bad);
   S.trades.push(t);sess.tradeIds.push(t.id);persist();renderTop();
@@ -2671,7 +2701,7 @@ async function sendChat(text,label){
 const CLOUD_CONFIG={url:'https://ioeltnbqlwfdfxwphstv.supabase.co',anonKey:'sb_publishable_233ymVksYoa8oeu-Q-YJFw_cIlaMTYq'};
 
 const cloud={url:'',key:'',session:null,profile:null,dirty:false,baseAt:null,timer:null,status:'off',busy:false,pulling:false,applying:false,
-  users:null,gateDone:null,gateMode:'signin',gateMsg:null,gateEmail:'',uploaded:new Set(),warnedBig:false,conflictOnBoot:false,lastSync:null};
+  users:null,gateDone:null,gateMode:'signin',gateMsg:null,gateEmail:'',uploaded:new Set(),warnedBig:false,conflictOnBoot:false,lastSync:null,justSignedUp:false};
 const isAdmin=()=>!!(cloud.profile&&cloud.profile.role==='admin'&&!cloud.profile.suspended);
 
 function cloudConfig(){
@@ -2947,7 +2977,7 @@ async function cloudBoot(){
   }else{cloud.url=cfg.url;cloud.key=cfg.key}
   /* links from confirmation and password reset emails */
   const hs=readHashSession();
-  if(hs){saveSession(hs.session);if(hs.type==='recovery'){await gate('reset')}}
+  if(hs){saveSession(hs.session);if(hs.type==='recovery'){await gate('reset')}else if(hs.type==='signup'){cloud.justSignedUp=true}}
   if(!cloud.session){try{const s=JSON.parse(localStorage.getItem('tradelens.auth')||'null');if(s&&s.access_token)cloud.session=s}catch(e){}}
   let ok=false;
   if(cloud.session){
@@ -3042,7 +3072,7 @@ document.addEventListener('submit',async e=>{
       if(pw!==String(f.get('password2')||'')){setMsg('err',"Those passwords don't match.");return}
       busy(true);setMsg('ok','Creating your account...');
       const r=await authSignUp(em,pw);
-      if(r.session){cloud.gateMsg=null;await afterAuth();return}
+      if(r.session){cloud.gateMsg=null;cloud.justSignedUp=true;await afterAuth();return}
       cloud.gateMsg={k:'ok',t:'Almost done. Check your email and click the confirmation link, then sign in.'};renderGate('signin');return;
     }
     if(!pw){setMsg('err','Enter your password.');return}
@@ -3096,7 +3126,7 @@ function vAdmin(){
   const active=us.filter(u=>u.last_seen&&new Date(u.last_seen).getTime()>week).length,trades=us.reduce((a,u)=>a+(u.trade_count||0),0),susp=us.filter(u=>u.suspended).length;
   return `<div class="page"><div class="page-h"><h1>Admin</h1><p>People with accounts on this site. You can see when they joined, when they were last active and how many journals and trades they have. You can't see what is inside anyone's journals.</p></div>
   <div class="sum"><div class="kpi"><small>Accounts</small><b>${us.length}</b></div><div class="kpi"><small>Active in 7 days</small><b>${active}</b></div><div class="kpi"><small>Trades logged</small><b>${trades}</b></div><div class="kpi"><small>Suspended</small><b>${susp}</b></div></div>
-  <div class="row" style="margin-bottom:12px"><button class="btn" data-act="admin-refresh">Refresh</button></div>
+  <div class="row" style="margin-bottom:12px"><button class="btn" data-act="admin-refresh">Refresh</button><button class="btn ghost" data-act="tour-open">Test the welcome tour</button></div>
   <div class="panel"><div class="tbl-scroll"><table class="kt"><thead><tr><th>Email</th><th>Role</th><th>Joined</th><th>Last active</th><th class="r">Journals</th><th class="r">Trades</th><th>Status</th><th></th></tr></thead><tbody>
   ${us.map(u=>`<tr><td><b>${esc(u.email)}</b></td><td>${u.role==='admin'?'<span class="chip on">Admin</span>':'User'}</td><td>${fd(u.created_at)}</td><td>${fd(u.last_seen)}</td><td class="r">${u.journal_count||0}</td><td class="r">${u.trade_count||0}</td><td>${u.suspended?'<span class="loss">Suspended</span>':'Active'}</td><td class="r">${u.id===me?'':`<button class="btn sm ${u.suspended?'':'danger'}" data-act="admin-suspend" data-id="${u.id}" data-s="${u.suspended?'0':'1'}">${u.suspended?'Reinstate':'Suspend'}</button>`}</td></tr>`).join('')}
   </tbody></table></div></div></div>`;
@@ -3293,6 +3323,26 @@ function custHtml(j){
 function openCust(jid){const j=S.journals.find(x=>x.id===jid);if(!j)return;ensureAllFonts();dlgKind='cust';dlgJ=jid;openDlg(`Customize ${j.name}`,custHtml(j));hydrate($('#dlgb'))}
 function drawCust(){const j=S.journals.find(x=>x.id===dlgJ);const b=$('#dlgb');if(j&&b&&dlgKind==='cust'){b.innerHTML=custHtml(j);hydrate(b);applyTheme();render()}}
 function drawSettings(){const b=$('#dlgb');if(b&&dlgKind==='settings')b.innerHTML=settingsHtml()}
+
+/* ---------- WELCOME TOUR ---------- */
+const TOUR_STEPS=[
+  {ic:'spark',title:'Welcome to ProjectLuma',body:'A trading journal built around Luma, your voice assistant. Talk through a trade and she writes it up, tracks your confluences and habits, and helps you see what your winners and losers actually have in common.'},
+  {ic:'journal',title:'Live journals and Backtest journals',body:'Your live journal tracks real trades and counts toward your stats. The separate Backtest journal is for reviewing setups and practice entries — it never mixes into your live numbers. Create as many live journals as you want from the Journal tab.'},
+  {ic:'mic',title:'Log a trade by voice',body:'Turn Luma on and say “Hey Luma” followed by what happened: symbol, direction, risk, result, confluences, what went wrong. She writes the entry for you. You can also type it, or fill in the form by hand.'},
+  {ic:'news',title:'Screenshots and charts',body:'Attach a chart screenshot to any entry, or share your screen while backtesting so Luma can grab it automatically. Click any screenshot afterward to zoom in.'},
+  {ic:'dashboard',title:'Dashboard and Winners vs Losers',body:'The Dashboard shows your equity curve, win rate and a calendar of your days. In the Backtest tab, “Analyze with Luma” reads your full entries and tells you, in plain language, what your winners and losers actually have in common.'},
+  {ic:'habits',title:'Habits',body:'Flag bad habits like chasing entries or moving your stop as you log a trade. The Habits tab tracks how often each one shows up over time.'},
+  {ic:'gear',title:'Make it yours',body:'Customize each journal’s icon, banner and accent color from its Customize button. In Settings you can set your own background, app-wide accent colors, and add your own Anthropic key so Luma’s AI features work everywhere.'}
+];
+let tourStep=0;
+function tourHtml(){
+  const s=TOUR_STEPS[tourStep],last=tourStep===TOUR_STEPS.length-1;
+  return `<div class="tour-step"><div class="tour-ic">${icon(s.ic)}</div><h3>${esc(s.title)}</h3><p>${esc(s.body)}</p></div>
+  <div class="tour-dots">${TOUR_STEPS.map((_,i)=>`<span class="${i===tourStep?'on':''}"></span>`).join('')}</div>
+  <div class="tour-nav">${tourStep>0?`<button class="btn ghost" data-act="tour-prev">Back</button>`:`<button class="btn ghost" data-act="tour-skip">Skip</button>`}<button class="btn primary" data-act="${last?'tour-done':'tour-next'}">${last?'Get started':'Next'}</button></div>`;
+}
+function drawTour(){const b=$('#dlgb');if(b&&dlgKind==='tour')b.innerHTML=tourHtml()}
+function openTour(){dlgKind='tour';tourStep=0;openDlg('Welcome to ProjectLuma',tourHtml())}
 function settingsHtml(){
   const enc=!!S.settings.apiKeyEnc,plain=S.settings.apiKey,k=enc||!!plain,locked=aiSource==='locked';
   const srcTxt=aiSource==='claude'?'Connected through Claude.':aiSource==='key'?(enc?'Connected with your API key, unlocked for this session.':'Connected with your API key.'):locked?'Your API key is saved but locked. Enter your password to unlock it.':'Not connected. Quick answers from your own numbers still work.';
@@ -3344,6 +3394,11 @@ const A={
   'cust-open':el=>openCust(el.dataset.j),
   'settings-open':()=>{dlgKind='settings';openDlg('Settings',settingsHtml())},
   'dlg-close':()=>closeDlg(),
+  'tour-open':()=>openTour(),
+  'tour-next':()=>{tourStep=Math.min(TOUR_STEPS.length-1,tourStep+1);drawTour()},
+  'tour-prev':()=>{tourStep=Math.max(0,tourStep-1);drawTour()},
+  'tour-skip':()=>closeDlg(),
+  'tour-done':()=>closeDlg(),
   'set-theme':el=>{S.ui.theme=el.dataset.t;persist();applyTheme();if(dlgKind==='settings'){$('#dlgb').innerHTML=settingsHtml()}render()},
   'bg-galaxy':()=>{const old=S.settings.bg&&S.settings.bg.mediaId;S.settings.bg={type:'galaxy'};if(old)media.del(old);persist();applyBackground();drawSettings()},
   'appearance-reset':async()=>{
@@ -3794,6 +3849,7 @@ async function applyBackground(){
   normalize();
   cloud.lastStr=JSON.stringify(S);
   persist();render();chatRender();startClaude();await tryAutoUnlock();cloudStart();
+  if(cloud.justSignedUp){cloud.justSignedUp=false;openTour()}
   loadNews().then(()=>{if(!curId&&$('#dlg').hidden)render();else renderTop()});
   setInterval(()=>{loadNews().then(()=>{if(S.ui.view==='news'&&!curId&&$('#dlg').hidden)render()})},2*60*60*1000);
   setInterval(()=>{if(S.ui.view==='news')tickNews()},1000);
