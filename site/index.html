@@ -1650,7 +1650,7 @@ function vDash(){
   const colors=['var(--accent)','var(--amber)','#f97316','#6b6b66','#3d3d3a'];
   const dsrc=[...bySetup].sort((a,b)=>b.n-a.n).slice(0,5).map((r,i)=>({...r,color:colors[i]}));
   const tot=dsrc.reduce((a,r)=>a+r.n,0);
-  const hero=s.n?`<div class="panel hero"><div><div class="h-lab">Total P&amp;L <span class="hint">${rangeLbl}</span></div><div class="big-num ${cls(s.total)}">${money(s.total)}</div><div class="h-sub"><span class="${cls(todayPnl)}">${money(todayPnl)} today</span><span>${pct(s.winRate)} win rate</span><span class="muted">${s.n} trades</span></div></div>
+  const hero=s.n?`<div class="panel hero"><div id="dash-total"><div class="h-lab">Total P&amp;L <span class="hint">${rangeLbl}</span></div><div class="big-num ${cls(s.total)}">${money(s.total)}</div><div class="h-sub"><span class="${cls(todayPnl)}">${money(todayPnl)} today</span><span>${pct(s.winRate)} win rate</span><span class="muted">${s.n} trades</span></div></div>
     <div><div class="h-lab b">Best performer</div>${best?`<div class="h-name">${esc(best.label)}</div><div class="h-val">${money(best.pnl)}<small class="win">${pct(best.winRate)} win</small></div>`:'<div class="hint">Not enough data</div>'}</div>
     <div><div class="h-lab w">Worst performer</div>${worst?`<div class="h-name">${esc(worst.label)}</div><div class="h-val">${money(worst.pnl)}<small class="${worst.pnl<0?'loss':'flat'}">${pct(worst.winRate)} win</small></div>`:'<div class="hint">Not enough data</div>'}</div></div>`
     :`<div class="panel"><div class="empty" style="border:0"><h3>No closed trades in this range</h3><div>Pick a longer range or another journal, or log a trade with a P&amp;L.</div></div></div>`;
@@ -3328,12 +3328,10 @@ function drawSettings(){const b=$('#dlgb');if(b&&dlgKind==='settings')b.innerHTM
 
 /* ---------- WELCOME TOUR: interactive spotlight that points at real UI and, for some steps, waits for you to actually do the thing ---------- */
 const TOUR_STEPS=[
-  {target:'#pl-chip',title:'Your closed P&L',body:'The running total across all your live journals, always visible up here. It never counts the Backtest journal.',mode:'next'},
   {target:'#gsearch',title:'Search everything',body:'Find any trade by symbol, setup or notes, from anywhere in the app.',mode:'next'},
-  {target:'[data-act="notifs-open"]',title:'Notifications',body:'Reminders for news events and anything else that needs your attention show up here.',mode:'next'},
   {target:'#lumaorb',title:'Chat with Luma',body:'This stays open on every page. Ask about your stats, a pattern, or anything else, in plain English.',mode:'next'},
-  {target:'[data-act="settings-open"]',title:'Make it yours',body:'Set your own accent colors, background and theme here, and add your own Anthropic key so Luma’s AI features work everywhere.',mode:'next'},
   {target:'#dash-range',title:'Filter the range',body:'Switch between the last 7, 30, 90 days or all time. Everything on this page updates with it.',mode:'next'},
+  {target:'#dash-total',title:'Your all-time P&L',body:'Total closed P&L for the range you picked, next to your best and worst performing setups.',mode:'next'},
   {target:'#dash-equity',title:'Your equity curve',body:'This tracks your cumulative P&L over time so you can see, at a glance, whether the line is going up.',mode:'next'},
   {target:'.panel.work',title:'What to work on',body:'Luma looks at your most expensive habits and weakest windows and tells you exactly what to focus on next.',mode:'next'},
   {target:'#dash-cal',title:'Scroll down for your calendar',body:'Scroll down to see it.',mode:'scroll'},
