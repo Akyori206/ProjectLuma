@@ -1883,7 +1883,7 @@ function winnersVsLosers(ts,jid){
   const cl=ts.filter(closed),W=cl.filter(t=>t.pnl>0),L=cl.filter(t=>t.pnl<0);
   const head=`<div class="work-h"><h3>${icon('spark')}Winners vs losers</h3></div><p class="hint" style="margin:0 0 14px">What your winning and losing backtests have in common. ${cl.length?`Based on ${cl.length} closed entr${cl.length===1?'y':'ies'}: ${W.length} win${W.length===1?'':'s'}, ${L.length} loss${L.length===1?'':'es'}.`:''}</p>`;
   if(cl.length<3||!W.length||!L.length){
-    return `<div class="panel glass" style="margin-top:14px">${head}<div class="empty" style="border:0;padding:12px 0"><h3>Needs a few more entries</h3><div>Log at least one win and one loss, three closed entries in total, and this fills in. Tell Luma the confluences and what went wrong on each trade for the best results.</div></div></div>`;
+    return `<div class="panel glass" id="wvl-panel" style="margin-top:14px">${head}<div class="empty" style="border:0;padding:12px 0"><h3>Needs a few more entries</h3><div>Log at least one win and one loss, three closed entries in total, and this fills in. Tell Luma the confluences and what went wrong on each trade for the best results.</div></div></div>`;
   }
   const conf=t=>t.confluences||[],bad=t=>[...(t.bad||[]),...habitNames(t)];
   const cW=tallyItems(W,conf),cL=tallyItems(L,conf),cA=tallyItems(cl,conf),bW=tallyItems(W,bad),bL=tallyItems(L,bad),bA=tallyItems(cl,bad);
@@ -1893,7 +1893,7 @@ function winnersVsLosers(ts,jid){
     .sort((a,b)=>b.share-a.share||b.gap-a.gap).slice(0,5);
   const weakConf=[...cL.values()].map(e=>{const all=cA.get(e.k).n,wins=(cW.get(e.k)||{n:0}).n;return{label:e.label,n:all,wr:wins/all}}).filter(x=>x.n>=2&&x.wr<.5).sort((a,b)=>a.wr-b.wr).slice(0,3);
   const small=cl.length<10?`<p class="hint" style="margin:10px 0 0">With fewer than 10 entries these patterns can shift a lot. Keep logging and they get more reliable.</p>`:'';
-  return `<div class="panel glass" style="margin-top:14px">${head}
+  return `<div class="panel glass" id="wvl-panel" style="margin-top:14px">${head}
    ${wvlBlockHtml(cl,jid)}
    <div class="grid2">
     <div><h4 class="sec-h win">What your winners share</h4>${winRows.length?patternBars(winRows,'win'):'<p class="hint" style="margin:0">Your winning entries have no confluences listed yet. Tell Luma “the confluences were…” as you journal.</p>'}</div>
@@ -2486,8 +2486,8 @@ function vNews(){
     :past&&!evs.length?`<div class="empty" style="margin-top:20px"><h3>Before the saved history</h3><div>This site keeps the calendar from the day it started collecting it, so earlier weeks aren't available.</div></div>`:'';
   return `<div class="page"><div class="page-h"><h1>Signals &amp; events</h1><p>Live market-moving events, filtered by impact. Pick the folder colors you want to track, the same ones Forex Factory uses. US dollar only by default; power on other currencies when you trade those markets.</p></div>
   <div class="note ${live?'':'warn'}" style="margin-bottom:16px">${status} Times are Eastern. Red is high impact, orange medium, yellow low, and gray non-economic like bank holidays. Forex Factory's public feed has forecasts and previous values but not actual results, so open <a href="https://www.forexfactory.com/calendar" target="_blank" rel="noopener noreferrer">Forex Factory</a> for the number after an event.</div>
-  <div class="panel" style="margin-bottom:16px"><small class="muted">Next event</small><div class="cd" id="cd" data-t="${next?eventDate(next).getTime():''}">${next?'':'None coming up for your filters'}</div><div>${next?esc(next.title)+' ('+esc(next.country)+', '+esc(fmtDay(next.date))+' '+esc(next.time)+' ET)':''}</div></div>
-  <div class="row" style="margin-bottom:8px"><span class="muted">Currencies</span>${COUNTRIES.map(c=>cc(c[0],c[1])).join('')}<button class="btn ghost sm" data-act="news-us">USD only</button><button class="btn ghost sm" data-act="news-all">All</button></div>
+  <div class="panel" id="news-next" style="margin-bottom:16px"><small class="muted">Next event</small><div class="cd" id="cd" data-t="${next?eventDate(next).getTime():''}">${next?'':'None coming up for your filters'}</div><div>${next?esc(next.title)+' ('+esc(next.country)+', '+esc(fmtDay(next.date))+' '+esc(next.time)+' ET)':''}</div></div>
+  <div class="row" id="news-filters" style="margin-bottom:8px"><span class="muted">Currencies</span>${COUNTRIES.map(c=>cc(c[0],c[1])).join('')}<button class="btn ghost sm" data-act="news-us">USD only</button><button class="btn ghost sm" data-act="news-all">All</button></div>
   <div class="row" style="margin-bottom:12px"><span class="muted">Folders</span>${IMPACTS.map(ic).join('')}</div>
   <div class="row" style="margin-bottom:12px"><div class="seg" role="group" aria-label="Range">${rg('today','Today',r==='today')}${rg('week','This week',r==='week'&&off===0)}${rg('next','Next week',r==='week'&&off===1)}</div>
    ${r==='week'?`<div class="row" style="gap:6px"><button class="icon-btn" data-act="news-week" data-d="-1" aria-label="Previous week">${icon('chev').replace('<svg','<svg style="transform:rotate(90deg)"')}</button><b style="min-width:120px;text-align:center">${esc(label)}</b><button class="icon-btn" data-act="news-week" data-d="1" aria-label="Next week">${icon('chev').replace('<svg','<svg style="transform:rotate(-90deg)"')}</button></div>`:''}</div>
@@ -3328,17 +3328,38 @@ function drawSettings(){const b=$('#dlgb');if(b&&dlgKind==='settings')b.innerHTM
 
 /* ---------- WELCOME TOUR: interactive spotlight that points at real UI and, for some steps, waits for you to actually do the thing ---------- */
 const TOUR_STEPS=[
-  {view:'dashboard',target:'#dash-equity',title:'Your equity curve',body:'This tracks your cumulative P&L over time so you can see, at a glance, whether the line is going up.',mode:'next'},
-  {view:'dashboard',target:'#dash-range',title:'Filter the range',body:'Switch between the last 7, 30, 90 days or all time. Everything on this page updates with it.',mode:'next'},
-  {view:'dashboard',target:'#dash-cal',title:'Scroll down for your calendar',body:'Scroll down to see it.',mode:'scroll'},
-  {view:'dashboard',target:'#dash-cal',title:'Your calendar',body:'Each day shows that day’s total P&L. Click any day to see the trades behind it.',mode:'next'},
-  {view:null,target:'[data-act="nav"][data-v="journal"]',title:'Head to your Journal',body:'Click the Journal tab to continue.',mode:'click',match:el=>el.dataset.act==='nav'&&el.dataset.v==='journal'},
-  {view:'journal',target:'[data-act="new-trade"]',title:'Log a trade',body:'Click here to add a new entry.',mode:'click',match:el=>el.dataset.act==='new-trade'},
-  {view:null,target:'#panel .p-title',title:'Fill in the details',body:'Set the symbol, direction, risk and P&L here, or click Ask Luma and talk through the trade by voice instead — she’ll fill it in for you.',mode:'next'},
-  {view:null,target:null,title:'That’s the core loop',body:'Explore the Backtest tab, Habits and Settings whenever you’re ready. You can replay this tour later from an admin.',mode:'done'}
+  {target:'#dash-equity',title:'Your equity curve',body:'This tracks your cumulative P&L over time so you can see, at a glance, whether the line is going up.',mode:'next'},
+  {target:'#dash-range',title:'Filter the range',body:'Switch between the last 7, 30, 90 days or all time. Everything on this page updates with it.',mode:'next'},
+  {target:'#dash-cal',title:'Scroll down for your calendar',body:'Scroll down to see it.',mode:'scroll'},
+  {target:'#dash-cal',title:'Your calendar',body:'Each day shows that day’s total P&L. Click any day to see the trades behind it.',mode:'next'},
+  {target:'.panel.work',title:'What to work on',body:'Luma looks at your most expensive habits and weakest windows and tells you exactly what to focus on next.',mode:'next'},
+  {target:'#gsearch',title:'Search everything',body:'Find any trade by symbol, setup or notes, from anywhere in the app.',mode:'next'},
+  {target:'[data-act="notifs-open"]',title:'Notifications',body:'Reminders for news events and anything else that needs your attention show up here.',mode:'next'},
+  {target:'#lumaorb',title:'Chat with Luma',body:'This stays open on every page. Ask about your stats, a pattern, or anything else, in plain English.',mode:'next'},
+  {target:'[data-act="settings-open"]',title:'Make it yours',body:'Set your own accent colors, background and theme here, and add your own Anthropic key so Luma’s AI features work everywhere.',mode:'next'},
+  {target:'[data-act="nav"][data-v="journal"]',title:'Head to your Journal',body:'Click the Journal tab to continue.',mode:'click',match:el=>el.dataset.act==='nav'&&el.dataset.v==='journal'},
+  {target:'[data-act="new-journal"]',title:'More than one journal',body:'Keep separate journals for different accounts or strategies, and switch between them with the tabs up here.',mode:'next'},
+  {target:'[data-act="new-trade"]',title:'Log a trade',body:'Click here to add a new entry.',mode:'click',match:el=>el.dataset.act==='new-trade'},
+  {target:'#panel .p-title',title:'Fill in the details',body:'Set the symbol, direction, risk and P&L here, or click Ask Luma and talk through the trade by voice instead — she’ll fill it in for you.',mode:'next'},
+  {target:'[data-act="nav"][data-v="backtest"]',title:'Practice in the Backtest tab',body:'Click the Backtest tab to continue.',mode:'click',match:el=>el.dataset.act==='nav'&&el.dataset.v==='backtest',onEnter:()=>closePanel()},
+  {target:'#foxbtn',title:'Talk it through',body:'Turn Luma on, say “Hey Luma” and describe the trade. She writes the entry, tracks confluences and what went wrong, and it never mixes into your live stats.',mode:'next'},
+  {target:'[data-act="sess-start"]',title:'Share your screen',body:'Optional: share your screen so Luma can grab a screenshot of your chart automatically when you say “screenshot this trade.”',mode:'next'},
+  {target:'#wvl-panel',title:'Winners vs Losers',body:'Once you have a few closed entries, “Analyze with Luma” reads your full write-ups and tells you, in plain language, what your winners and losers actually have in common.',mode:'next'},
+  {target:'[data-act="nav"][data-v="habits"]',title:'Track bad habits',body:'Click the Habits tab to continue.',mode:'click',match:el=>el.dataset.act==='nav'&&el.dataset.v==='habits'},
+  {target:'[data-act="habit-add"]',title:'Flag what’s costing you',body:'Flag a habit on any entry, by hand or by voice, and its true cost — total P&L across every trade it showed up on — tracks itself here.',mode:'next'},
+  {target:'[data-act="nav"][data-v="news"]',title:'Trade around the news',body:'Click the News tab to continue.',mode:'click',match:el=>el.dataset.act==='nav'&&el.dataset.v==='news'},
+  {target:'#news-next',title:'Never miss a release',body:'See the next high-impact event at a glance, and tap the bell on any event below to get reminded before it hits.',mode:'next'},
+  {target:'#news-filters',title:'Filter by currency',body:'Only track the currencies and impact levels that matter for what you trade.',mode:'next'},
+  {target:null,title:'That’s ProjectLuma',body:'You’ve seen every tab. Explore at your own pace — an admin can replay this tour for you anytime from the admin panel.',mode:'done'}
 ];
 let tour=null;
-function tourVisible(el){return !!(el&&el.offsetParent!==null)}
+function tourVisible(el){
+  if(!el)return false;
+  const r=el.getBoundingClientRect();
+  if(r.width<=0&&r.height<=0)return false;
+  const cs=getComputedStyle(el);
+  return cs.display!=='none'&&cs.visibility!=='hidden';
+}
 function tourFind(sel){if(!sel)return null;const els=$$(sel).filter(tourVisible);return els[0]||null}
 function tourCardHtml(step){
   const hint=step.mode==='click'?'<span class="tour-hint">Click it to continue</span>':step.mode==='scroll'?'<span class="tour-hint">Scroll to continue</span>':'';
@@ -3356,11 +3377,16 @@ function tourReposition(){
   const el=tourFind(step.target);
   card.innerHTML=tourCardHtml(step);
   if(el){
+    if(step.mode!=='scroll'){
+      const vr=el.getBoundingClientRect();
+      if(vr.top<70||vr.bottom>innerHeight-70)el.scrollIntoView({block:'center',behavior:'instant'});
+    }
     const r=el.getBoundingClientRect(),pad=6;
     hole.style.opacity='1';
     hole.style.left=(r.left-pad)+'px';hole.style.top=(r.top-pad)+'px';hole.style.width=(r.width+pad*2)+'px';hole.style.height=(r.height+pad*2)+'px';
     const cw=Math.min(320,innerWidth-32);card.style.width=cw+'px';
-    let top=r.bottom+14;if(top+180>innerHeight)top=Math.max(10,r.top-14-180);
+    let top=r.bottom+14;if(top+180>innerHeight)top=r.top-14-180;
+    top=Math.min(Math.max(10,top),innerHeight-60);
     let left=Math.min(Math.max(10,r.left),innerWidth-cw-10);
     card.style.top=top+'px';card.style.left=left+'px';
   }else{
@@ -3380,7 +3406,13 @@ function tourClickWatch(e){
   const el=e.target.closest&&e.target.closest('[data-act]');if(!el||!step.match(el))return;
   setTimeout(tourNext,30);
 }
-function tourGo(i){if(!tour)return;tour.step=Math.max(0,Math.min(TOUR_STEPS.length-1,i));tourReposition()}
+function tourGo(i){
+  if(!tour)return;
+  tour.step=Math.max(0,Math.min(TOUR_STEPS.length-1,i));
+  const step=TOUR_STEPS[tour.step];
+  if(step.onEnter)try{step.onEnter()}catch(e){}
+  tourReposition();
+}
 function tourNext(){tourGo((tour?tour.step:0)+1)}
 function tourBack(){tourGo((tour?tour.step:0)-1)}
 function tourEnd(){
