@@ -3236,7 +3236,7 @@ function renderTop(){
   $('#top').innerHTML=`<div class="brand">${logoSvg('top')}ProjectLuma</div>
   <nav class="tabs" aria-label="Sections">${navItems().map(n=>`<button class="tab ${S.ui.view===n[0]?'on':''}" data-act="nav" data-v="${n[0]}" ${S.ui.view===n[0]?'aria-current="page"':''}>${icon(n[0])}<span>${n[1]}</span></button>`).join('')}</nav>
   <div class="top-search">${icon('search')}<input id="gsearch" placeholder="Search your trades" aria-label="Search your trades" value="${esc(keep)}"></div>
-  <div class="top-act">${fox.on?`<button class="tbtn foxchip" data-act="fox-toggle" aria-label="Turn off ${esc(wakeName())}"><i></i><span class="lbl">${esc(wakeName())} is listening</span></button>`:''}<button class="tbtn sq" data-act="notifs-open" aria-label="Notifications${newsAlertDot()?', high impact US event within 24 hours':''}">${icon('bell')}${newsAlertDot()?'<span class="dot"></span>':''}</button><span class="tbtn pl-chip ${cls(total)}" title="Closed P&L across your live journals">${money(total)}</span>${cloud.session?`<button class="tbtn sq" data-act="account-open" aria-label="Account and sync"><span class="avatar">${esc(((cloud.session.user.email||'?')[0]||'?').toUpperCase())}</span><i class="sdot s-${cloud.status}"></i></button>`:''}<button class="tbtn sq" data-act="settings-open" aria-label="Settings">${icon('gear')}</button></div>`;
+  <div class="top-act">${fox.on?`<button class="tbtn foxchip" data-act="fox-toggle" aria-label="Turn off ${esc(wakeName())}"><i></i><span class="lbl">${esc(wakeName())} is listening</span></button>`:''}<button class="tbtn sq" data-act="notifs-open" aria-label="Notifications${newsAlertDot()?', high impact US event within 24 hours':''}">${icon('bell')}${newsAlertDot()?'<span class="dot"></span>':''}</button><span class="tbtn pl-chip ${cls(total)}" id="pl-chip" title="Closed P&L across your live journals">${money(total)}</span>${cloud.session?`<button class="tbtn sq" data-act="account-open" aria-label="Account and sync"><span class="avatar">${esc(((cloud.session.user.email||'?')[0]||'?').toUpperCase())}</span><i class="sdot s-${cloud.status}"></i></button>`:''}<button class="tbtn sq" data-act="settings-open" aria-label="Settings">${icon('gear')}</button></div>`;
 }
 const renderSide2=()=>renderTop();
 function renderTabbar(){
@@ -3328,15 +3328,16 @@ function drawSettings(){const b=$('#dlgb');if(b&&dlgKind==='settings')b.innerHTM
 
 /* ---------- WELCOME TOUR: interactive spotlight that points at real UI and, for some steps, waits for you to actually do the thing ---------- */
 const TOUR_STEPS=[
-  {target:'#dash-equity',title:'Your equity curve',body:'This tracks your cumulative P&L over time so you can see, at a glance, whether the line is going up.',mode:'next'},
-  {target:'#dash-range',title:'Filter the range',body:'Switch between the last 7, 30, 90 days or all time. Everything on this page updates with it.',mode:'next'},
-  {target:'#dash-cal',title:'Scroll down for your calendar',body:'Scroll down to see it.',mode:'scroll'},
-  {target:'#dash-cal',title:'Your calendar',body:'Each day shows that day’s total P&L. Click any day to see the trades behind it.',mode:'next'},
-  {target:'.panel.work',title:'What to work on',body:'Luma looks at your most expensive habits and weakest windows and tells you exactly what to focus on next.',mode:'next'},
+  {target:'#pl-chip',title:'Your closed P&L',body:'The running total across all your live journals, always visible up here. It never counts the Backtest journal.',mode:'next'},
   {target:'#gsearch',title:'Search everything',body:'Find any trade by symbol, setup or notes, from anywhere in the app.',mode:'next'},
   {target:'[data-act="notifs-open"]',title:'Notifications',body:'Reminders for news events and anything else that needs your attention show up here.',mode:'next'},
   {target:'#lumaorb',title:'Chat with Luma',body:'This stays open on every page. Ask about your stats, a pattern, or anything else, in plain English.',mode:'next'},
   {target:'[data-act="settings-open"]',title:'Make it yours',body:'Set your own accent colors, background and theme here, and add your own Anthropic key so Luma’s AI features work everywhere.',mode:'next'},
+  {target:'#dash-range',title:'Filter the range',body:'Switch between the last 7, 30, 90 days or all time. Everything on this page updates with it.',mode:'next'},
+  {target:'#dash-equity',title:'Your equity curve',body:'This tracks your cumulative P&L over time so you can see, at a glance, whether the line is going up.',mode:'next'},
+  {target:'.panel.work',title:'What to work on',body:'Luma looks at your most expensive habits and weakest windows and tells you exactly what to focus on next.',mode:'next'},
+  {target:'#dash-cal',title:'Scroll down for your calendar',body:'Scroll down to see it.',mode:'scroll'},
+  {target:'#dash-cal',title:'Your calendar',body:'Each day shows that day’s total P&L. Click any day to see the trades behind it.',mode:'next'},
   {target:'[data-act="nav"][data-v="journal"]',title:'Head to your Journal',body:'Click the Journal tab to continue.',mode:'click',match:el=>el.dataset.act==='nav'&&el.dataset.v==='journal'},
   {target:'[data-act="new-journal"]',title:'More than one journal',body:'Keep separate journals for different accounts or strategies, and switch between them with the tabs up here.',mode:'next'},
   {target:'[data-act="new-trade"]',title:'Log a trade',body:'Click here to add a new entry.',mode:'click',match:el=>el.dataset.act==='new-trade'},
