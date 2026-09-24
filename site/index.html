@@ -333,15 +333,15 @@ video.vid{width:100%;border-radius:14px;background:#000;max-height:380px}
 .dlg-h{position:sticky;top:0;background:var(--panel);display:flex;align-items:center;gap:10px;padding:16px 20px;border-bottom:1px solid var(--line);z-index:1}
 .dlg-h h3{flex:1;font-size:19px;margin:0}
 .dlg-b{padding:18px 20px;display:grid;gap:20px}
-.tour-step{text-align:center;padding:8px 6px 4px}
-.tour-ic{width:60px;height:60px;border-radius:50%;background:color-mix(in srgb,var(--accent) 16%,transparent);color:var(--accent);display:grid;place-items:center;margin:0 auto 16px}
-.tour-ic .ic{width:28px;height:28px}
-.tour-step h3{margin:0 0 10px;font-size:20px}
-.tour-step p{margin:0;color:var(--ink2);line-height:1.55}
-.tour-dots{display:flex;justify-content:center;gap:6px;margin:20px 0 4px}
-.tour-dots span{width:7px;height:7px;border-radius:50%;background:var(--line2)}
-.tour-dots span.on{background:var(--accent);width:18px;border-radius:4px}
-.tour-nav{display:flex;justify-content:space-between;gap:10px}
+#tourlay{position:fixed;inset:0;z-index:250;pointer-events:none}
+#tourlay[hidden]{display:none}
+#tourhole{position:absolute;left:50%;top:50%;width:0;height:0;border-radius:12px;box-shadow:0 0 0 9999px rgba(4,4,4,.7);opacity:0;transition:left .25s ease,top .25s ease,width .25s ease,height .25s ease,opacity .2s ease;pointer-events:none}
+#tourcard{position:absolute;background:var(--panel);border:1px solid var(--line2);border-radius:16px;padding:16px 18px;box-shadow:var(--shadow);pointer-events:auto;transition:left .25s ease,top .25s ease}
+#tourcard h4{margin:0 10px 8px 0;font-size:16px}
+#tourcard p{margin:0 0 12px;color:var(--ink2);font-size:13.5px;line-height:1.5}
+.tour-actbar{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.tour-hint{font-size:12px;color:var(--accent);font-weight:600}
+.tour-x{position:absolute;top:10px;right:10px}
 .sw{display:flex;flex-wrap:wrap;gap:8px}
 .sw button{width:32px;height:32px;border-radius:50%;border:2px solid transparent;outline:1px solid var(--line2)}
 .sw button[aria-pressed=true]{border-color:var(--panel);outline:2px solid var(--ink)}
@@ -587,6 +587,7 @@ body.gated #top,body.gated #main,body.gated #tabbar,body.gated #foot{display:non
 <div id="dlg" class="dlg" hidden></div>
 <div id="modal" hidden></div>
 <div id="zoom" class="zoom" hidden role="dialog" aria-modal="true" aria-label="Screenshot, zoomed in"><button class="icon-btn" data-act="zoom-close" aria-label="Close"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><img id="zoomimg" alt="Screenshot, zoomed in"></div>
+<div id="tourlay" hidden role="dialog" aria-label="Guided tour"><div id="tourhole"></div><div id="tourcard"></div></div>
 <div id="toasts" role="status" aria-live="polite"></div>
 <script>
 'use strict';
@@ -1654,12 +1655,12 @@ function vDash(){
     <div><div class="h-lab w">Worst performer</div>${worst?`<div class="h-name">${esc(worst.label)}</div><div class="h-val">${money(worst.pnl)}<small class="${worst.pnl<0?'loss':'flat'}">${pct(worst.winRate)} win</small></div>`:'<div class="hint">Not enough data</div>'}</div></div>`
     :`<div class="panel"><div class="empty" style="border:0"><h3>No closed trades in this range</h3><div>Pick a longer range or another journal, or log a trade with a P&amp;L.</div></div></div>`;
   return `<div class="page"><div class="row" style="margin-bottom:14px;justify-content:space-between"><div class="page-h" style="margin:0"><h1>Dashboard</h1></div>
-   <div class="row"><label class="f" style="min-width:200px;flex-direction:row;align-items:center;gap:8px">Show<select data-in="dash-j">${scopeOptions(d.j)}</select></label><div class="seg" role="group" aria-label="Date range">${rg('7','7D')}${rg('30','30D')}${rg('90','90D')}${rg('all','All')}</div></div></div>
+   <div class="row"><label class="f" style="min-width:200px;flex-direction:row;align-items:center;gap:8px">Show<select data-in="dash-j">${scopeOptions(d.j)}</select></label><div class="seg" id="dash-range" role="group" aria-label="Date range">${rg('7','7D')}${rg('30','30D')}${rg('90','90D')}${rg('all','All')}</div></div></div>
   ${S.trades.length?'':`<div class="panel glass" style="margin-bottom:14px"><h3 style="margin-bottom:6px">Welcome to ProjectLuma</h3><p class="muted" style="margin:0 0 12px">Everything starts empty and is yours. Three ways to begin:</p><div class="row"><button class="btn primary" data-act="nav" data-v="journal">Log your first trade</button><button class="btn" data-act="nav" data-v="backtest">Try a backtest with Luma</button><button class="btn ghost" data-act="nav" data-v="news">See this week's news</button></div></div>`}
   <div class="dg">
    <div class="c8 col">${hero}
      ${bySym.length?`<div class="ticks" aria-label="Results by symbol">${bySym.map(r=>`<span class="tick"><b>${esc(r.label)}</b><span class="${cls(r.pnl)}">${money(r.pnl)}</span><span class="muted">${pct(r.winRate)}</span></span>`).join('')}</div>`:''}
-     ${s.n?`<div class="panel"><div class="ch-h"><h3 style="margin:0;flex:1">Cumulative P&amp;L</h3><label class="f" style="flex-direction:row;align-items:center;gap:8px">Compare with<select class="sel" data-in="dash-cmp"><option value="none" ${d.cmp==='none'?'selected':''}>Nothing</option>${scopeOptions(d.cmp,false)}</select></label></div>
+     ${s.n?`<div class="panel" id="dash-equity"><div class="ch-h"><h3 style="margin:0;flex:1">Cumulative P&amp;L</h3><label class="f" style="flex-direction:row;align-items:center;gap:8px">Compare with<select class="sel" data-in="dash-cmp"><option value="none" ${d.cmp==='none'?'selected':''}>Nothing</option>${scopeOptions(d.cmp,false)}</select></label></div>
      <div class="ch-legend"><span><i style="background:var(--amber)"></i>${esc(scopeName(d.j))}</span>${cmpSeries?`<span><i style="background:var(--ink2)"></i>${esc(scopeName(d.cmp))}</span>`:''}</div>${lineChart(seriesOf(ts),cmpSeries)}</div>`:''}
    </div>
    <div class="c4 col">${workOnPanel(ts,scopeName(d.j),'dash',d.j)}
@@ -1712,10 +1713,10 @@ function dashCalendar(all){
   const detail=sel?`<div class="dc-detail"><div class="row" style="justify-content:space-between"><h3 style="margin:0">${esc(fmtDay(sel))}</h3><span class="dc-tot ${cls(stot)}">${scl.length?money(stot):'No closed trades'}</span></div>
     ${scl.length>1?`<p class="hint" style="margin:6px 0 4px">${esc(scl.map(t=>money(t.pnl)).join(' ')+' = '+money(stot))}</p>`:''}
     ${sg.length?sg.map(t=>`<button class="dc-row" data-act="open-trade" data-id="${t.id}"><span class="muted">${esc(t.time)}</span><span><b>${esc(t.symbol)}</b> ${t.direction==='long'?'Long':'Short'} <span class="chip" style="margin-left:6px">${esc((jOf(t)||{name:''}).name)}</span></span><b class="${resultOf(t).c}">${t.open?'Open':money(t.pnl)}</b></button>`).join(''):'<p class="hint">No trades logged on this day.</p>'}</div>`:'';
-  return `<div class="sec-t"><h2>Calendar</h2><span class="hint">Daily P&amp;L from the trades you log. Several trades on one day are added together. Showing ${esc(scopeName(d.j))}.</span></div>
+  return `<div id="dash-cal"><div class="sec-t"><h2>Calendar</h2><span class="hint">Daily P&amp;L from the trades you log. Several trades on one day are added together. Showing ${esc(scopeName(d.j))}.</span></div>
   <div class="panel"><div class="cal-h" style="flex-wrap:wrap"><button class="icon-btn" data-act="dcal-prev" aria-label="Previous month">${icon('chev').replace('<svg','<svg style="transform:rotate(90deg)"')}</button><h3 style="min-width:150px;margin:0">${first.toLocaleDateString('en-US',{month:'long',year:'numeric'})}</h3><button class="icon-btn" data-act="dcal-next" aria-label="Next month">${icon('chev').replace('<svg','<svg style="transform:rotate(-90deg)"')}</button><button class="btn sm ghost" data-act="dcal-today">Today</button><input type="month" data-in="dcal-month" value="${y}-${pad(m+1)}" aria-label="Jump to month" style="width:auto">
    <span style="margin-left:auto;text-align:right"><b class="${cls(mTot)}" style="font-family:var(--display);font-size:20px">${mCount?money(mTot):'$0'}</b><br><span class="hint">${mCount} trade${mCount===1?'':'s'}, ${winDays} green day${winDays===1?'':'s'}, ${lossDays} red day${lossDays===1?'':'s'}</span></span></div>
-   <div class="dcal">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat','Week'].map(x=>`<div class="dcal-h">${x}</div>`).join('')}${rows}</div>${detail}</div>`;
+   <div class="dcal">${['Sun','Mon','Tue','Wed','Thu','Fri','Sat','Week'].map(x=>`<div class="dcal-h">${x}</div>`).join('')}${rows}</div>${detail}</div></div>`;
 }
 
 /* ---------- HABITS ---------- */
@@ -1995,7 +1996,7 @@ const slog=(k,m)=>{sess.log.push({k,m,t:new Date().toLocaleTimeString('en-US',{h
 async function startSession(){
   sess.done=null;sess.recap='';sess.log=[];sess.tradeIds=[];
   if(embedded()&&featOK('display-capture')===false){sess.stream=null;explainBlocked('screen')}
-  else{try{sess.stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:5},audio:false});watchStream()}catch(e){sess.stream=null;screenError(e)}}
+  else{try{sess.stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:5,width:{ideal:3840},height:{ideal:2160}},audio:false});watchStream()}catch(e){sess.stream=null;screenError(e)}}
   sess.active=true;sess.startedAt=Date.now();
   clearInterval(sess.timer);sess.timer=setInterval(()=>{const el=$('#stimer');if(el)el.textContent=fmtDur(Date.now()-sess.startedAt)},1000);
   render();slog('sys',sess.stream?'Session started. Screen is shared.':'Session started without screen sharing.');
@@ -2006,15 +2007,15 @@ function watchStream(){
   if(tr)tr.addEventListener('ended',()=>{if(sess.active){sess.stream=null;sess.vid=null;toast('Screen sharing stopped.');if(S.ui.view==='backtest')render()}});
 }
 async function shareScreen(){
-  try{sess.stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:5},audio:false});watchStream();render();slog('sys','Screen is shared.')}
+  try{sess.stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:5,width:{ideal:3840},height:{ideal:2160}},audio:false});watchStream();render();slog('sys','Screen is shared.')}
   catch(e){screenError(e)}
 }
 function grab(){
   const v=sess.vid;
   if(!sess.stream||!v||!v.videoWidth)return Promise.resolve(null);
-  const c=document.createElement('canvas'),s=Math.min(1,1400/v.videoWidth);c.width=Math.round(v.videoWidth*s);c.height=Math.round(v.videoHeight*s);
+  const c=document.createElement('canvas'),s=Math.min(1,2400/v.videoWidth);c.width=Math.round(v.videoWidth*s);c.height=Math.round(v.videoHeight*s);
   try{c.getContext('2d').drawImage(v,0,0,c.width,c.height)}catch(e){return Promise.resolve(null)}
-  return new Promise(res=>c.toBlob(b=>res(b),'image/jpeg',.82));
+  return new Promise(res=>c.toBlob(b=>res(b),'image/jpeg',.94));
 }
 async function saveShot(){const b=await grab();if(!b)return null;const id=uid('img');await media.put(id,b);return id}
 function endSession(){
@@ -3252,6 +3253,7 @@ function render(){
   if(v==='backtest'){if(sess.active)attachPreview();else sessRender()}
   if(v==='news')tickNews();
   scrollReveal(m);
+  if(tour)requestAnimationFrame(tourReposition);
 }
 function scrollReveal(root){
   if(reducedMotion()||typeof IntersectionObserver==='undefined')return;
@@ -3324,25 +3326,73 @@ function openCust(jid){const j=S.journals.find(x=>x.id===jid);if(!j)return;ensur
 function drawCust(){const j=S.journals.find(x=>x.id===dlgJ);const b=$('#dlgb');if(j&&b&&dlgKind==='cust'){b.innerHTML=custHtml(j);hydrate(b);applyTheme();render()}}
 function drawSettings(){const b=$('#dlgb');if(b&&dlgKind==='settings')b.innerHTML=settingsHtml()}
 
-/* ---------- WELCOME TOUR ---------- */
+/* ---------- WELCOME TOUR: interactive spotlight that points at real UI and, for some steps, waits for you to actually do the thing ---------- */
 const TOUR_STEPS=[
-  {ic:'spark',title:'Welcome to ProjectLuma',body:'A trading journal built around Luma, your voice assistant. Talk through a trade and she writes it up, tracks your confluences and habits, and helps you see what your winners and losers actually have in common.'},
-  {ic:'journal',title:'Live journals and Backtest journals',body:'Your live journal tracks real trades and counts toward your stats. The separate Backtest journal is for reviewing setups and practice entries — it never mixes into your live numbers. Create as many live journals as you want from the Journal tab.'},
-  {ic:'mic',title:'Log a trade by voice',body:'Turn Luma on and say “Hey Luma” followed by what happened: symbol, direction, risk, result, confluences, what went wrong. She writes the entry for you. You can also type it, or fill in the form by hand.'},
-  {ic:'news',title:'Screenshots and charts',body:'Attach a chart screenshot to any entry, or share your screen while backtesting so Luma can grab it automatically. Click any screenshot afterward to zoom in.'},
-  {ic:'dashboard',title:'Dashboard and Winners vs Losers',body:'The Dashboard shows your equity curve, win rate and a calendar of your days. In the Backtest tab, “Analyze with Luma” reads your full entries and tells you, in plain language, what your winners and losers actually have in common.'},
-  {ic:'habits',title:'Habits',body:'Flag bad habits like chasing entries or moving your stop as you log a trade. The Habits tab tracks how often each one shows up over time.'},
-  {ic:'gear',title:'Make it yours',body:'Customize each journal’s icon, banner and accent color from its Customize button. In Settings you can set your own background, app-wide accent colors, and add your own Anthropic key so Luma’s AI features work everywhere.'}
+  {view:'dashboard',target:'#dash-equity',title:'Your equity curve',body:'This tracks your cumulative P&L over time so you can see, at a glance, whether the line is going up.',mode:'next'},
+  {view:'dashboard',target:'#dash-range',title:'Filter the range',body:'Switch between the last 7, 30, 90 days or all time. Everything on this page updates with it.',mode:'next'},
+  {view:'dashboard',target:'#dash-cal',title:'Scroll down for your calendar',body:'Scroll down to see it.',mode:'scroll'},
+  {view:'dashboard',target:'#dash-cal',title:'Your calendar',body:'Each day shows that day’s total P&L. Click any day to see the trades behind it.',mode:'next'},
+  {view:null,target:'[data-act="nav"][data-v="journal"]',title:'Head to your Journal',body:'Click the Journal tab to continue.',mode:'click',match:el=>el.dataset.act==='nav'&&el.dataset.v==='journal'},
+  {view:'journal',target:'[data-act="new-trade"]',title:'Log a trade',body:'Click here to add a new entry.',mode:'click',match:el=>el.dataset.act==='new-trade'},
+  {view:null,target:'#panel .p-title',title:'Fill in the details',body:'Set the symbol, direction, risk and P&L here, or click Ask Luma and talk through the trade by voice instead — she’ll fill it in for you.',mode:'next'},
+  {view:null,target:null,title:'That’s the core loop',body:'Explore the Backtest tab, Habits and Settings whenever you’re ready. You can replay this tour later from an admin.',mode:'done'}
 ];
-let tourStep=0;
-function tourHtml(){
-  const s=TOUR_STEPS[tourStep],last=tourStep===TOUR_STEPS.length-1;
-  return `<div class="tour-step"><div class="tour-ic">${icon(s.ic)}</div><h3>${esc(s.title)}</h3><p>${esc(s.body)}</p></div>
-  <div class="tour-dots">${TOUR_STEPS.map((_,i)=>`<span class="${i===tourStep?'on':''}"></span>`).join('')}</div>
-  <div class="tour-nav">${tourStep>0?`<button class="btn ghost" data-act="tour-prev">Back</button>`:`<button class="btn ghost" data-act="tour-skip">Skip</button>`}<button class="btn primary" data-act="${last?'tour-done':'tour-next'}">${last?'Get started':'Next'}</button></div>`;
+let tour=null;
+function tourVisible(el){return !!(el&&el.offsetParent!==null)}
+function tourFind(sel){if(!sel)return null;const els=$$(sel).filter(tourVisible);return els[0]||null}
+function tourCardHtml(step){
+  const hint=step.mode==='click'?'<span class="tour-hint">Click it to continue</span>':step.mode==='scroll'?'<span class="tour-hint">Scroll to continue</span>':'';
+  const back=tour.step>0?`<button class="btn ghost sm" data-act="tour-back">Back</button>`:`<button class="btn ghost sm" data-act="tour-end">Skip tour</button>`;
+  const fwd=step.mode==='done'?`<button class="btn primary sm" data-act="tour-end">Done</button>`:step.mode==='next'?`<button class="btn primary sm" data-act="tour-next">Next</button>`:`<button class="btn ghost sm" data-act="tour-next">Skip step</button>`;
+  return `<button class="icon-btn sm tour-x" data-act="tour-end" aria-label="Close tour">${icon('x')}</button>
+  <h4>${esc(step.title)}</h4><p>${esc(step.body)}</p>
+  <div class="tour-actbar">${hint||'<span></span>'}<div class="row" style="gap:8px">${back}${fwd}</div></div>`;
 }
-function drawTour(){const b=$('#dlgb');if(b&&dlgKind==='tour')b.innerHTML=tourHtml()}
-function openTour(){dlgKind='tour';tourStep=0;openDlg('Welcome to ProjectLuma',tourHtml())}
+function tourReposition(){
+  if(!tour)return;
+  const step=TOUR_STEPS[tour.step],lay=$('#tourlay'),hole=$('#tourhole'),card=$('#tourcard');
+  if(!lay||!hole||!card)return;
+  lay.hidden=false;
+  const el=tourFind(step.target);
+  card.innerHTML=tourCardHtml(step);
+  if(el){
+    const r=el.getBoundingClientRect(),pad=6;
+    hole.style.opacity='1';
+    hole.style.left=(r.left-pad)+'px';hole.style.top=(r.top-pad)+'px';hole.style.width=(r.width+pad*2)+'px';hole.style.height=(r.height+pad*2)+'px';
+    const cw=Math.min(320,innerWidth-32);card.style.width=cw+'px';
+    let top=r.bottom+14;if(top+180>innerHeight)top=Math.max(10,r.top-14-180);
+    let left=Math.min(Math.max(10,r.left),innerWidth-cw-10);
+    card.style.top=top+'px';card.style.left=left+'px';
+  }else{
+    hole.style.opacity='0';
+    const cw=Math.min(340,innerWidth-32);card.style.width=cw+'px';
+    card.style.left=((innerWidth-cw)/2)+'px';card.style.top=(innerHeight/2-90)+'px';
+  }
+  if(step.mode==='scroll'&&el){
+    const r=el.getBoundingClientRect();
+    if(r.top<innerHeight*0.7)tourNext();
+  }
+}
+function tourOnScroll(){if(tour)tourReposition()}
+function tourClickWatch(e){
+  if(!tour)return;
+  const step=TOUR_STEPS[tour.step];if(step.mode!=='click')return;
+  const el=e.target.closest&&e.target.closest('[data-act]');if(!el||!step.match(el))return;
+  setTimeout(tourNext,30);
+}
+function tourGo(i){if(!tour)return;tour.step=Math.max(0,Math.min(TOUR_STEPS.length-1,i));tourReposition()}
+function tourNext(){tourGo((tour?tour.step:0)+1)}
+function tourBack(){tourGo((tour?tour.step:0)-1)}
+function tourEnd(){
+  tour=null;const l=$('#tourlay');if(l)l.hidden=true;
+  window.removeEventListener('resize',tourReposition);window.removeEventListener('scroll',tourOnScroll,true);
+}
+function openTour(){
+  tour={step:0};
+  window.addEventListener('resize',tourReposition);window.addEventListener('scroll',tourOnScroll,true);
+  if(S.ui.view!=='dashboard'){S.ui.view='dashboard';render()}
+  tourReposition();
+}
 function settingsHtml(){
   const enc=!!S.settings.apiKeyEnc,plain=S.settings.apiKey,k=enc||!!plain,locked=aiSource==='locked';
   const srcTxt=aiSource==='claude'?'Connected through Claude.':aiSource==='key'?(enc?'Connected with your API key, unlocked for this session.':'Connected with your API key.'):locked?'Your API key is saved but locked. Enter your password to unlock it.':'Not connected. Quick answers from your own numbers still work.';
@@ -3395,10 +3445,9 @@ const A={
   'settings-open':()=>{dlgKind='settings';openDlg('Settings',settingsHtml())},
   'dlg-close':()=>closeDlg(),
   'tour-open':()=>openTour(),
-  'tour-next':()=>{tourStep=Math.min(TOUR_STEPS.length-1,tourStep+1);drawTour()},
-  'tour-prev':()=>{tourStep=Math.max(0,tourStep-1);drawTour()},
-  'tour-skip':()=>closeDlg(),
-  'tour-done':()=>closeDlg(),
+  'tour-next':()=>tourNext(),
+  'tour-back':()=>tourBack(),
+  'tour-end':()=>tourEnd(),
   'set-theme':el=>{S.ui.theme=el.dataset.t;persist();applyTheme();if(dlgKind==='settings'){$('#dlgb').innerHTML=settingsHtml()}render()},
   'bg-galaxy':()=>{const old=S.settings.bg&&S.settings.bg.mediaId;S.settings.bg={type:'galaxy'};if(old)media.del(old);persist();applyBackground();drawSettings()},
   'appearance-reset':async()=>{
@@ -3531,6 +3580,7 @@ document.addEventListener('click',e=>{
   const el=e.target.closest('[data-act]');if(!el)return;
   const fn=A[el.dataset.act];if(fn){if(el.tagName==='A')e.preventDefault();fn(el,e)}
 });
+document.addEventListener('click',tourClickWatch);
 $('#dlg').addEventListener('click',e=>{if(e.target===$('#dlg'))closeDlg()});
 $('#zoom').addEventListener('click',e=>{if(e.target.id==='zoom')closeZoom()});
 document.addEventListener('keydown',e=>{
