@@ -342,6 +342,12 @@ video.vid{width:100%;border-radius:14px;background:#000;max-height:380px}
 .tour-actbar{display:flex;justify-content:space-between;align-items:center;gap:10px}
 .tour-hint{font-size:12px;color:var(--accent);font-weight:600}
 .tour-x{position:absolute;top:10px;right:10px}
+#shotpick{position:fixed;inset:0;z-index:260;background:rgba(4,4,4,.94);display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;gap:18px}
+#shotpick[hidden]{display:none}
+#sp-stage{position:relative;max-width:100%;max-height:calc(100vh - 130px);touch-action:none;cursor:crosshair;user-select:none;line-height:0}
+#sp-stage img{display:block;max-width:100%;max-height:calc(100vh - 130px);border-radius:8px;pointer-events:none}
+#sp-sel{position:absolute;left:0;top:0;display:none;border:2px solid var(--accent);background:color-mix(in srgb,var(--accent) 18%,transparent);pointer-events:none}
+#sp-bar{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px 16px;width:100%;max-width:720px}
 .sw{display:flex;flex-wrap:wrap;gap:8px}
 .sw button{width:32px;height:32px;border-radius:50%;border:2px solid transparent;outline:1px solid var(--line2)}
 .sw button[aria-pressed=true]{border-color:var(--panel);outline:2px solid var(--ink)}
@@ -588,6 +594,10 @@ body.gated #top,body.gated #main,body.gated #tabbar,body.gated #foot{display:non
 <div id="modal" hidden></div>
 <div id="zoom" class="zoom" hidden role="dialog" aria-modal="true" aria-label="Screenshot, zoomed in"><button class="icon-btn" data-act="zoom-close" aria-label="Close"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg></button><img id="zoomimg" alt="Screenshot, zoomed in"></div>
 <div id="tourlay" hidden role="dialog" aria-label="Guided tour"><div id="tourhole"></div><div id="tourcard"></div></div>
+<div id="shotpick" hidden role="dialog" aria-modal="true" aria-label="Select screenshot area">
+  <div id="sp-stage"><img id="sp-img" alt="Captured screen"><div id="sp-sel"></div></div>
+  <div id="sp-bar"><span class="hint">Drag on the image to select an area, or keep the whole screenshot.</span><div class="row" style="gap:8px"><button class="btn ghost" id="sp-full">Use whole screenshot</button><button class="btn primary" id="sp-save">Save selection</button></div></div>
+</div>
 <div id="toasts" role="status" aria-live="polite"></div>
 <script>
 'use strict';
@@ -2018,6 +2028,56 @@ function grab(){
   return new Promise(res=>c.toBlob(b=>res(b),'image/jpeg',.94));
 }
 async function saveShot(){const b=await grab();if(!b)return null;const id=uid('img');await media.put(id,b);return id}
+/* Shows the just-captured frame full-screen with a drag-to-select box, like a native screenshot tool.
+   Resolves with a cropped blob if the trader drags a selection, or the original blob if they keep the whole frame
+   (button click, or a timeout so voice logging never hard-blocks on it). */
+function pickShotArea(blob){
+  return new Promise(resolve=>{
+    const wrap=$('#shotpick'),stage=$('#sp-stage'),img=$('#sp-img'),sel=$('#sp-sel'),full=$('#sp-full'),save=$('#sp-save');
+    const url=URL.createObjectURL(blob);
+    let rect=null,drag=null,timer=null,done=false;
+    img.src=url;sel.style.display='none';
+    const ready=img.decode?img.decode().catch(()=>{}):Promise.resolve();
+    const finish=async useFull=>{
+      if(done)return;done=true;
+      stage.onmousedown=null;full.onclick=null;save.onclick=null;
+      document.removeEventListener('mousemove',onMove);document.removeEventListener('mouseup',onUp);
+      document.removeEventListener('keydown',onKey);
+      clearTimeout(timer);
+      const done2=b=>{wrap.hidden=true;URL.revokeObjectURL(url);resolve(b)};
+      if(useFull||!rect||rect.w<12||rect.h<12){done2(blob);return}
+      await ready;
+      /* read the displayed size while the overlay is still visible — a hidden element reports 0 for clientWidth/Height */
+      const nw=img.naturalWidth||img.clientWidth,nh=img.naturalHeight||img.clientHeight,dw=img.clientWidth||1,dh=img.clientHeight||1;
+      const sx=nw/dw,sy=nh/dh;
+      const c=document.createElement('canvas');
+      c.width=Math.max(1,Math.round(rect.w*sx));c.height=Math.max(1,Math.round(rect.h*sy));
+      try{c.getContext('2d').drawImage(img,rect.x*sx,rect.y*sy,rect.w*sx,rect.h*sy,0,0,c.width,c.height)}catch(e){done2(blob);return}
+      c.toBlob(b=>done2(b||blob),'image/jpeg',.94);
+    };
+    function onMove(e){
+      if(!drag)return;
+      const cx=Math.min(Math.max(e.clientX-drag.ox,0),img.clientWidth),cy=Math.min(Math.max(e.clientY-drag.oy,0),img.clientHeight);
+      const x=Math.min(drag.x,cx),y=Math.min(drag.y,cy),w=Math.abs(cx-drag.x),h=Math.abs(cy-drag.y);
+      rect={x,y,w,h};
+      sel.style.display='block';sel.style.left=x+'px';sel.style.top=y+'px';sel.style.width=w+'px';sel.style.height=h+'px';
+    }
+    function onUp(){drag=null}
+    function onKey(e){if(e.key==='Escape')finish(true)}
+    stage.onmousedown=e=>{
+      const b=img.getBoundingClientRect();
+      drag={ox:b.left,oy:b.top,x:Math.min(Math.max(e.clientX-b.left,0),img.clientWidth),y:Math.min(Math.max(e.clientY-b.top,0),img.clientHeight)};
+      rect=null;sel.style.display='none';
+    };
+    document.addEventListener('mousemove',onMove);
+    document.addEventListener('mouseup',onUp);
+    document.addEventListener('keydown',onKey);
+    full.onclick=()=>finish(true);
+    save.onclick=()=>finish(false);
+    wrap.hidden=false;
+    timer=setTimeout(()=>finish(true),30000);
+  });
+}
 function endSession(){
   clearInterval(sess.timer);
   if(sess.stream)sess.stream.getTracks().forEach(t=>t.stop());
@@ -2025,7 +2085,7 @@ function endSession(){
   sess.active=false;sess.stream=null;sess.vid=null;render();
 }
 /* ---------- FOX: always-on wake-word voice assistant ---------- */
-const fox={on:false,state:'idle',rec:null,text:'',pre:'',wakeIdx:-1,sliceWake:true,ignoreUpTo:0,resLen:0,timer:null,shot:null,speaking:false,restarts:0,lastStart:0,netFails:0};
+const fox={on:false,state:'idle',rec:null,text:'',pre:'',wakeIdx:-1,sliceWake:true,ignoreUpTo:0,resLen:0,timer:null,shot:null,shotBlob:null,speaking:false,restarts:0,lastStart:0,netFails:0};
 const END_RE=/\b(that'?s all|that is all|end entry|i'?m done|over and out)\s*[.!]?$/i;
 function wakeRe(){
   return new RegExp('\\b(?:(?:hey|yo|ok|okay|hi|hello)\\s+)?(?:luma|lumma|looma|loomah|lumah)\\b[,.!?]?','i');
@@ -2046,6 +2106,7 @@ const LUMA={
   empty:['Hmm, I heard my name but not the rest. Try me again?','Did you need something? I didn’t catch it.'],
   fail:['Hmm, something went sideways. Want to try that again?','Oops, that didn’t work. Give it another go?'],
   screenshot:['Screenshot saved.','Snapped it.','Got the chart.'],
+  pickArea:['Great, select the area you want screenshotted.','Go ahead and select the part of the screen you want to keep.','Pick the area for the screenshot whenever you’re ready.'],
   habit:['Noted. We’ll work on that one.','Flagged it. Awareness is half the battle.'],
   conf:['Added those confluences.','Nice, those confluences are in.'],
   note:['Noted.','Written down.'],
@@ -2128,9 +2189,9 @@ function foxListen(){
   try{r.start()}catch(e){setTimeout(()=>{if(fox.on)foxListen()},1000)}
 }
 function foxWake(i){
-  fox.state='capturing';fox.wakeIdx=i;fox.sliceWake=true;fox.pre='';fox.text='';fox.shot=null;
+  fox.state='capturing';fox.wakeIdx=i;fox.sliceWake=true;fox.pre='';fox.text='';fox.shot=null;fox.shotBlob=null;
   clearTimeout(fox.timer);fox.timer=setTimeout(foxFinalize,6000);
-  saveShot().then(id=>{fox.shot=id||null});
+  grab().then(b=>{fox.shotBlob=b||null});
   say(pick(LUMA.wake),{guard:false});
 }
 function foxResult(e){
@@ -2159,10 +2220,15 @@ function foxResult(e){
 async function foxFinalize(){
   clearTimeout(fox.timer);
   if(fox.state!=='capturing')return;
-  const text=fox.text.replace(END_RE,'').trim(),shot=fox.shot;
-  fox.state='working';fox.ignoreUpTo=fox.resLen;foxUi();
+  const text=fox.text.replace(END_RE,'').trim(),shotBlob=fox.shotBlob;
+  fox.state='working';fox.ignoreUpTo=fox.resLen;fox.shotBlob=null;foxUi();
   if(!text){say(pick(LUMA.empty),{guard:false});fox.state='idle';foxUi();return}
   slog('you',text);
+  let shot=null;
+  if(shotBlob){
+    say(pick(LUMA.pickArea),{guard:false});
+    try{const b=await pickShotArea(shotBlob);shot=uid('img');await media.put(shot,b)}catch(e){shot=null}
+  }
   try{await handleFoxRequest(text,shot)}catch(e){say(pick(LUMA.fail))}
   fox.state='idle';fox.text='';fox.pre='';foxUi();
 }
