@@ -1996,7 +1996,7 @@ const slog=(k,m)=>{sess.log.push({k,m,t:new Date().toLocaleTimeString('en-US',{h
 async function startSession(){
   sess.done=null;sess.recap='';sess.log=[];sess.tradeIds=[];
   if(embedded()&&featOK('display-capture')===false){sess.stream=null;explainBlocked('screen')}
-  else{try{sess.stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:5,width:{ideal:3840},height:{ideal:2160}},audio:false});watchStream()}catch(e){sess.stream=null;screenError(e)}}
+  else{try{sess.stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:5},audio:false});watchStream()}catch(e){sess.stream=null;screenError(e)}}
   sess.active=true;sess.startedAt=Date.now();
   clearInterval(sess.timer);sess.timer=setInterval(()=>{const el=$('#stimer');if(el)el.textContent=fmtDur(Date.now()-sess.startedAt)},1000);
   render();slog('sys',sess.stream?'Session started. Screen is shared.':'Session started without screen sharing.');
@@ -2007,7 +2007,7 @@ function watchStream(){
   if(tr)tr.addEventListener('ended',()=>{if(sess.active){sess.stream=null;sess.vid=null;toast('Screen sharing stopped.');if(S.ui.view==='backtest')render()}});
 }
 async function shareScreen(){
-  try{sess.stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:5,width:{ideal:3840},height:{ideal:2160}},audio:false});watchStream();render();slog('sys','Screen is shared.')}
+  try{sess.stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:5},audio:false});watchStream();render();slog('sys','Screen is shared.')}
   catch(e){screenError(e)}
 }
 function grab(){
