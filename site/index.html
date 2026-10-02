@@ -14,14 +14,14 @@
   box-sizing:border-box;
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
-  --bg:#05070d;--panel:#0b0f1c;--panel2:#101528;--raised:#161d33;--line:#1b2236;--line2:#2a3454;--ink:#eef2ff;--ink2:#8891ae;
+  --bg:#05070d;--panel:#0b0f1c;--panel2:#101528;--raised:#161d33;--line:#1b2236;--line2:#2a3454;--ink:#eef2ff;--ink2:#8891ae;--header:#0b0f1c;
   --win:#2ee89b;--loss:#ff4d6d;--amber:#ffb020;--accent:#3b82f6;--accent2:#8b5cf6;--accent-ink:#ffffff;--bg-dim:55%;
   --shadow:0 18px 50px rgba(0,0,0,.6);
   --glow:0 0 24px color-mix(in srgb,var(--accent) 45%,transparent);
   --display:'Space Grotesk','Inter',system-ui,sans-serif;--sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--mono:'JetBrains Mono',ui-monospace,'SF Mono',Consolas,monospace;
 }
 :root[data-theme=light]{
-  --bg:#eef1f8;--panel:#ffffff;--panel2:#f7f9fd;--raised:#eef1f9;--line:#dbe1ef;--line2:#c3ccdf;--ink:#0b1020;--ink2:#5b6480;
+  --bg:#eef1f8;--panel:#ffffff;--panel2:#f7f9fd;--raised:#eef1f9;--line:#dbe1ef;--line2:#c3ccdf;--ink:#0b1020;--ink2:#5b6480;--header:#ffffff;
   --win:#0a9566;--loss:#d6294a;--amber:#a86412;--accent:#2563eb;--accent2:#6d28d9;--accent-ink:#ffffff;--shadow:0 18px 50px rgba(20,30,60,.14);
   --glow:0 0 24px color-mix(in srgb,var(--accent) 18%,transparent);
 }
@@ -55,7 +55,7 @@ a{color:var(--accent)}
 .row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
 
 /* top bar */
-.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;display:flex;align-items:center;gap:16px;padding:12px clamp(14px,2.4vw,32px);background:color-mix(in srgb,var(--panel) 86%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);overflow:hidden}
+.topbar{position:sticky;top:env(safe-area-inset-top,0px);z-index:30;display:flex;align-items:center;gap:16px;padding:12px clamp(14px,2.4vw,32px);background:color-mix(in srgb,var(--header) 86%,transparent);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-bottom:1px solid var(--line);overflow:hidden}
 .topbar::after{content:"";position:absolute;left:0;right:0;bottom:-1px;height:1px;background:linear-gradient(90deg,transparent,var(--accent) 45%,var(--accent2) 55%,transparent);background-size:60% 100%;opacity:.7;animation:sheen 7s linear infinite}
 .brand{display:flex;align-items:center;gap:10px;font-family:var(--display);font-size:19px;font-weight:600;letter-spacing:-.01em;white-space:nowrap}
 .brand-ic{width:24px;height:24px;flex:none;filter:drop-shadow(0 0 6px color-mix(in srgb,var(--accent) 55%,transparent))}
@@ -3291,6 +3291,10 @@ function applyTheme(){
   else root.style.removeProperty('--panel');
   if(S.settings&&S.settings.panel2)root.style.setProperty('--panel2',S.settings.panel2);
   else root.style.removeProperty('--panel2');
+  if(S.settings&&S.settings.header)root.style.setProperty('--header',S.settings.header);
+  else root.style.removeProperty('--header');
+  if(S.settings&&S.settings.ink)root.style.setProperty('--ink',S.settings.ink);
+  else root.style.removeProperty('--ink');
   const dim=S.settings&&S.settings.bgDim!=null?S.settings.bgDim:55;
   root.style.setProperty('--bg-dim',dim+'%');
   document.body.dataset.fx=j.effect||'none';document.body.dataset.density=j.density||'comfortable';
@@ -3504,7 +3508,13 @@ function settingsHtml(){
    <p class="hint" style="margin:8px 0 0">This sets the app-wide button and highlight color, on top of any per-journal accent.</p>
    <p class="hint" style="margin:16px 0 6px;font-weight:600;color:var(--ink)">Widget colors</p>
    <div class="row"><label class="f">Widget background<input type="color" data-cf="app-panel" value="${esc(S.settings.panel||cssVar('--panel','#0b0f1c'))}" aria-label="Widget background color"></label><label class="f">Widget background (gradient 2nd shade)<input type="color" data-cf="app-panel2" value="${esc(S.settings.panel2||cssVar('--panel2','#101528'))}" aria-label="Widget background gradient color"></label></div>
-   <p class="hint" style="margin:8px 0 0">Cards, panels, chips and dialogs use these two colors as their background.</p></div>
+   <p class="hint" style="margin:8px 0 0">Cards, panels, chips and dialogs use these two colors as their background.</p>
+   <p class="hint" style="margin:16px 0 6px;font-weight:600;color:var(--ink)">Header color</p>
+   <div class="row"><label class="f">Top header background<input type="color" data-cf="app-header" value="${esc(S.settings.header||cssVar('--header','#0b0f1c'))}" aria-label="Header background color"></label></div>
+   <p class="hint" style="margin:8px 0 0">Sets just the bar at the top with the tabs, separately from the widget background.</p>
+   <p class="hint" style="margin:16px 0 6px;font-weight:600;color:var(--ink)">Text color</p>
+   <div class="row"><label class="f">Text color<input type="color" data-cf="app-ink" value="${esc(S.settings.ink||cssVar('--ink','#eef2ff'))}" aria-label="Text color"></label></div>
+   <p class="hint" style="margin:8px 0 0">Applies to all text across the app. Pick something that stays readable against your widget and header colors.</p></div>
   <div><h4 class="sec-h">Background</h4><p class="hint" style="margin:0 0 10px">The animated galaxy is the default. Swap it for your own still image or a looping video.</p>
    <div class="row"><button class="btn sm ${(!S.settings.bg||S.settings.bg.type==='galaxy')?'primary':''}" data-act="bg-galaxy" aria-pressed="${!S.settings.bg||S.settings.bg.type==='galaxy'}">Galaxy (default)</button><label class="btn sm">Upload image<input type="file" accept="image/*" hidden data-cf="bgimage"></label><label class="btn sm">Upload video<input type="file" accept="video/*" hidden data-cf="bgvideo"></label></div>
    <p class="hint" style="margin:8px 0 0">It fills the whole screen and crops to fit, so for it to show fully and clean, use a landscape image or video around 1920x1080 (16:9).</p>
@@ -3558,7 +3568,7 @@ const A={
   'appearance-reset':async()=>{
     if(!await ask('Revert appearance to default?',{confirmOnly:true,message:'This resets the app accent colors and background back to the defaults. Per-journal customization (icons, banners) is not affected.',okLabel:'Revert'}))return;
     const old=S.settings.bg&&S.settings.bg.mediaId;
-    delete S.settings.accent;delete S.settings.accent2;delete S.settings.panel;delete S.settings.panel2;S.settings.bg={type:'galaxy'};S.settings.bgDim=55;
+    delete S.settings.accent;delete S.settings.accent2;delete S.settings.panel;delete S.settings.panel2;delete S.settings.header;delete S.settings.ink;S.settings.bg={type:'galaxy'};S.settings.bgDim=55;
     if(old)media.del(old);
     persist();applyTheme();applyBackground();drawSettings();render();
   },
@@ -3815,6 +3825,14 @@ function custField(el,type){
     if(type==='input'||type==='change'){S.settings.panel2=el.value;applyTheme();if(type==='change'){persist();drawSettings()}else saveSoon()}
     return;
   }
+  if(f==='app-header'){
+    if(type==='input'||type==='change'){S.settings.header=el.value;applyTheme();if(type==='change'){persist();drawSettings()}else saveSoon()}
+    return;
+  }
+  if(f==='app-ink'){
+    if(type==='input'||type==='change'){S.settings.ink=el.value;applyTheme();if(type==='change'){persist();drawSettings()}else saveSoon()}
+    return;
+  }
   if(f==='bg-dim'){
     if(type==='input'||type==='change'){
       S.settings.bgDim=Number(el.value);applyTheme();
@@ -3904,6 +3922,7 @@ window.addEventListener('beforeunload',()=>{if(sess.stream)sess.stream.getTracks
 function normalize(){
   const b=blankState(),cur=S.settings||{};
   S.settings={...defaultSettings(),...cur};
+  if(S.settings.panel&&!S.settings.header)S.settings.header=S.settings.panel;
   const map={US:'USD',EU:'EUR',UK:'GBP',JP:'JPY',CA:'CAD',AU:'AUD'};
   S.settings.newsCountries=(S.settings.newsCountries||[]).map(c=>map[c]||c);
   if(!S.settings.newsCountries.length)S.settings.newsCountries=['USD'];
