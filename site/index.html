@@ -232,7 +232,7 @@ body[data-fx=grain] .banner .fx{background-image:url("data:image/svg+xml;utf8,%3
 body[data-fx=grid] .banner .fx{background-image:linear-gradient(rgba(255,255,255,.12) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.12) 1px,transparent 1px);background-size:32px 32px}
 body[data-fx=glow] .banner .fx{background:radial-gradient(420px 220px at 15% 20%,rgba(255,255,255,.26),transparent 70%),radial-gradient(360px 200px at 80% 80%,rgba(255,220,150,.3),transparent 70%);animation:drift 14s ease-in-out infinite alternate}
 @keyframes drift{from{transform:translate3d(-3%,0,0)}to{transform:translate3d(4%,-4%,0)}}
-body[data-fx=glow]::before,body[data-fx=grid]::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none}
+body[data-fx=glow]::before,body[data-fx=grid]::before{content:"";position:fixed;inset:0;z-index:-1;pointer-events:none;background-color:transparent}
 body[data-fx=glow]::before{background:radial-gradient(800px 420px at 92% -8%,color-mix(in srgb,var(--accent) 12%,transparent),transparent 70%)}
 body[data-fx=grid]::before{background-image:linear-gradient(color-mix(in srgb,var(--ink) 4%,transparent) 1px,transparent 1px),linear-gradient(90deg,color-mix(in srgb,var(--ink) 4%,transparent) 1px,transparent 1px);background-size:44px 44px}
 .toolbar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;padding:16px 0}
@@ -3293,8 +3293,8 @@ function applyTheme(){
   else root.style.removeProperty('--panel2');
   if(S.settings&&S.settings.header)root.style.setProperty('--header',S.settings.header);
   else root.style.removeProperty('--header');
-  if(S.settings&&S.settings.ink)root.style.setProperty('--ink',S.settings.ink);
-  else root.style.removeProperty('--ink');
+  if(S.settings&&S.settings.ink){root.style.setProperty('--ink',S.settings.ink);root.style.setProperty('--ink2',S.settings.ink)}
+  else{root.style.removeProperty('--ink');root.style.removeProperty('--ink2')}
   const dim=S.settings&&S.settings.bgDim!=null?S.settings.bgDim:55;
   root.style.setProperty('--bg-dim',dim+'%');
   document.body.dataset.fx=j.effect||'none';document.body.dataset.density=j.density||'comfortable';
