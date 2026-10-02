@@ -1171,7 +1171,7 @@ function imageAdjuster(file,o){
       const measure=()=>{const r=stage.getBoundingClientRect();box={w:Math.max(1,r.width),h:Math.max(1,r.height)}};
       /* How much the picture is enlarged at its real size on the page. Over about 1.15x starts to look soft. */
       const magnify=()=>{
-        const iw=img.naturalWidth,ih=img.naturalHeight,realW=o.realW||box.w,realH=realW/aspect;
+        const iw=img.naturalWidth,ih=img.naturalHeight,realW=(o.realW||box.w)*(window.devicePixelRatio||1),realH=realW/aspect;
         return Math.max(realW/iw,realH/ih)*zoom;
       };
       const setNote=()=>{
@@ -1231,11 +1231,12 @@ function imageAdjuster(file,o){
 }
 /* Big stills are shrunk before saving; animations and icons keep their original file. */
 /* Your file is stored exactly as you uploaded it, at full quality. Only a very large photo
-   (over 9 MB, and never an animation or icon) is resized, and then only gently. */
+   (over 9 MB, and never an animation or icon) is resized, and then only gently, at a cap
+   high enough to stay sharp full-screen on Retina/HiDPI displays. */
 async function storeAdjusted(r,keepOriginal){
   let blob=r.blob;
   if(!r.anim&&!keepOriginal&&blob.size>9*1024*1024){
-    try{const shrunk=await toJpeg(blob,4000,.95);if(shrunk&&shrunk.size<blob.size)blob=shrunk}catch(e){}
+    try{const shrunk=await toJpeg(blob,5600,.97);if(shrunk&&shrunk.size<blob.size)blob=shrunk}catch(e){}
   }
   const id=uid('img');await media.put(id,blob);
   return id;
@@ -3517,7 +3518,7 @@ function settingsHtml(){
    <p class="hint" style="margin:8px 0 0">Applies to all text across the app. Pick something that stays readable against your widget and header colors.</p></div>
   <div><h4 class="sec-h">Background</h4><p class="hint" style="margin:0 0 10px">The animated galaxy is the default. Swap it for your own still image or a looping video.</p>
    <div class="row"><button class="btn sm ${(!S.settings.bg||S.settings.bg.type==='galaxy')?'primary':''}" data-act="bg-galaxy" aria-pressed="${!S.settings.bg||S.settings.bg.type==='galaxy'}">Galaxy (default)</button><label class="btn sm">Upload image<input type="file" accept="image/*" hidden data-cf="bgimage"></label><label class="btn sm">Upload video<input type="file" accept="video/*" hidden data-cf="bgvideo"></label></div>
-   <p class="hint" style="margin:8px 0 0">It fills the whole screen and crops to fit, so for it to show fully and clean, use a landscape image or video around 1920x1080 (16:9).</p>
+   <p class="hint" style="margin:8px 0 0">It fills the whole screen and crops to fit, so for it to show fully and clean, use a landscape image or video around 1920x1080 (16:9). On a Retina or other high-resolution screen it needs more pixels to stay sharp — the position screen tells you exactly how many once you pick a file.</p>
    ${S.settings.bg&&S.settings.bg.type!=='galaxy'&&S.settings.bg.mediaId?`<div class="row" style="margin-top:12px"><label class="f" style="flex:1"><span style="display:flex;justify-content:space-between">Dim overlay<span class="muted" id="bgdimval">${bgDimPct()}%</span></span><input type="range" min="0" max="90" step="5" value="${bgDimPct()}" data-cf="bg-dim" aria-label="Background dim amount"></label></div><p class="hint" style="margin:6px 0 0">Lower this to lighten your background image; raise it to dim it for readability. Using a custom ${S.settings.bg.type} background.</p>`:''}</div>
   <div class="row"><button class="btn ghost" data-act="appearance-reset">Revert appearance to default</button></div>
   <div><h4 class="sec-h">Luma's voice</h4><p class="hint" style="margin:0 0 10px">Turn Luma on from the Backtest tab and say “Hey Luma”. She always speaks with Google UK English Female when it's available, or the closest female voice your browser offers. Chrome and Edge support always-on listening.</p>
