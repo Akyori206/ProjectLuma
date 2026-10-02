@@ -493,7 +493,6 @@ button.dc:hover{border-color:var(--line2)}
 .secret{-webkit-text-security:disc;text-security:disc}
 .secret.show{-webkit-text-security:none;text-security:none}
 .sec-h.win{color:var(--win)}.sec-h.loss{color:var(--loss)}
-.nrow{display:grid;grid-template-columns:24px 1fr auto;gap:10px;align-items:center;padding:9px 0;border-top:1px solid var(--line);font-size:14px}
 .jdesc{margin:12px 2px 0;color:var(--ink2);font-size:14px;max-width:80ch;white-space:pre-wrap}
 .fold{width:17px;height:17px;flex:none;vertical-align:-3px}
 .f-high{fill:#e5484d}.f-medium{fill:#f59e0b}.f-low{fill:#eab308}.f-holiday{fill:#9ca3af}
@@ -2020,12 +2019,24 @@ async function shareScreen(){
   try{sess.stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:5},audio:false});watchStream();render();slog('sys','Screen is shared.')}
   catch(e){screenError(e)}
 }
-function grab(){
+async function grab(){
   const v=sess.vid;
-  if(!sess.stream||!v||!v.videoWidth)return Promise.resolve(null);
-  const c=document.createElement('canvas'),s=Math.min(1,2400/v.videoWidth);c.width=Math.round(v.videoWidth*s);c.height=Math.round(v.videoHeight*s);
-  try{c.getContext('2d').drawImage(v,0,0,c.width,c.height)}catch(e){return Promise.resolve(null)}
-  return new Promise(res=>c.toBlob(b=>res(b),'image/jpeg',.94));
+  if(!sess.stream||!v||!v.videoWidth)return null;
+  const tr=sess.stream.getVideoTracks()[0];
+  let boosted=false;
+  if(tr&&tr.applyConstraints){
+    const w0=v.videoWidth;
+    try{
+      await tr.applyConstraints({width:{ideal:3840},height:{ideal:2160}});
+      boosted=true;
+      for(let i=0;i<10&&v.videoWidth<=w0&&v.videoWidth<3800;i++)await new Promise(r=>setTimeout(r,50));
+    }catch(e){}
+  }
+  const c=document.createElement('canvas'),s=Math.min(1,3840/v.videoWidth);c.width=Math.round(v.videoWidth*s);c.height=Math.round(v.videoHeight*s);
+  let blob=null;
+  try{c.getContext('2d').drawImage(v,0,0,c.width,c.height);blob=await new Promise(res=>c.toBlob(b=>res(b),'image/jpeg',.94))}catch(e){}
+  if(boosted){try{await tr.applyConstraints({width:{ideal:1280},height:{ideal:720}})}catch(e){}}
+  return blob;
 }
 async function saveShot(){const b=await grab();if(!b)return null;const id=uid('img');await media.put(id,b);return id}
 /* Shows the just-captured frame full-screen with a drag-to-select box, like a native screenshot tool.
@@ -2122,8 +2133,7 @@ const LUMA={
 function englishVoices(){try{return(window.speechSynthesis&&speechSynthesis.getVoices?speechSynthesis.getVoices():[]).filter(v=>/^en/i.test(v.lang))}catch(e){return[]}}
 function pickVoice(){
   const vs=englishVoices();if(!vs.length)return null;
-  if(S.settings.voiceName){const v=vs.find(x=>x.name===S.settings.voiceName);if(v)return v}
-  const pref=[/samantha/i,/google us english/i,/aria/i,/jenny/i,/zira/i,/karen/i,/moira/i,/tessa/i,/serena/i,/victoria/i,/susan/i,/hazel/i,/google uk english female/i,/female/i];
+  const pref=[/google uk english female/i,/samantha/i,/google us english/i,/aria/i,/jenny/i,/zira/i,/karen/i,/moira/i,/tessa/i,/serena/i,/victoria/i,/susan/i,/hazel/i,/female/i];
   for(const re of pref){const v=vs.find(x=>re.test(x.name));if(v)return v}
   return vs.find(v=>!/\bmale\b|david|mark|daniel|alex|fred|george|james|guy|ryan|thomas|oliver/i.test(v.name))||vs[0];
 }
@@ -2570,18 +2580,6 @@ function tickNews(){
   const s=Math.floor(ms/1000),d=Math.floor(s/86400),h=Math.floor(s%86400/3600),m=Math.floor(s%3600/60);
   el.textContent=(d?d+'d ':'')+pad(h)+':'+pad(m)+':'+pad(s%60);
 }
-function notifsHtml(){
-  const st=S.settings,now=etNow(),lim=now.getTime()+3*864e5;
-  const pass=e=>st.newsCountries.includes(e.country)&&st.newsImpact.includes(e.impact)&&e.impact!=='holiday';
-  const when=e=>{const ms=eventDate(e)-now,h=Math.floor(ms/36e5),m=Math.floor(ms%36e5/6e4);return ms<864e5?'in '+(h?h+'h ':'')+m+'m':fmtDay(e.date)+', '+e.time+' ET'};
-  const row=e=>`<div class="nrow"><span>${folder(e.impact)}</span><span><b>${esc(e.title)}</b> <span class="muted">${e.country}</span></span><span class="muted">${esc(when(e))}</span></div>`;
-  const up=FF_EVENTS.filter(e=>pass(e)&&eventDate(e)>now&&eventDate(e).getTime()<=lim).sort((a,b)=>eventDate(a)-eventDate(b)).slice(0,8);
-  const rem=FF_EVENTS.filter(e=>S.remind[e.id]&&eventDate(e)>now).sort((a,b)=>eventDate(a)-eventDate(b)).slice(0,6);
-  const stale=iso(now)>FF_END;
-  return `<div><h4 class="sec-h">Coming up in the next 3 days</h4>${up.length?up.map(row).join(''):`<p class="hint" style="margin:0">${stale?'The calendar is catching up. It refreshes automatically, so check back soon.':'Nothing coming up for your filters. Change them on the News page.'}</p>`}</div>
-  <div><h4 class="sec-h">Your reminders</h4>${rem.length?rem.map(row).join(''):'<p class="hint" style="margin:0">No reminders set. Tap the bell on any event on the News page.</p>'}<p class="hint" style="margin:8px 0 0">You get a message ${st.minBefore} minutes before each one, while this page is open.</p></div>
-  <div class="row"><button class="btn primary" data-act="nav" data-v="news">Open news and events</button></div>`;
-}
 const fired=new Set();
 function checkReminders(){
   const now=etNow();
@@ -2595,11 +2593,6 @@ function checkReminders(){
     }
   });
 }
-function newsAlertDot(){
-  const now=etNow(),lim=now.getTime()+864e5;
-  return FF_EVENTS.some(e=>e.country==='USD'&&e.impact==='high'&&eventDate(e)>now&&eventDate(e).getTime()<=lim);
-}
-
 /* ---------- DATA: csv + files ---------- */
 function parseCSV(text){
   const rows=[];let row=[],f='',q=false;
@@ -3302,7 +3295,7 @@ function renderTop(){
   $('#top').innerHTML=`<div class="brand">${logoSvg('top')}ProjectLuma</div>
   <nav class="tabs" aria-label="Sections">${navItems().map(n=>`<button class="tab ${S.ui.view===n[0]?'on':''}" data-act="nav" data-v="${n[0]}" ${S.ui.view===n[0]?'aria-current="page"':''}>${icon(n[0])}<span>${n[1]}</span></button>`).join('')}</nav>
   <div class="top-search">${icon('search')}<input id="gsearch" placeholder="Search your trades" aria-label="Search your trades" value="${esc(keep)}"></div>
-  <div class="top-act">${fox.on?`<button class="tbtn foxchip" data-act="fox-toggle" aria-label="Turn off ${esc(wakeName())}"><i></i><span class="lbl">${esc(wakeName())} is listening</span></button>`:''}<button class="tbtn sq" data-act="notifs-open" aria-label="Notifications${newsAlertDot()?', high impact US event within 24 hours':''}">${icon('bell')}${newsAlertDot()?'<span class="dot"></span>':''}</button><span class="tbtn pl-chip ${cls(total)}" id="pl-chip" title="Closed P&L across your live journals">${money(total)}</span>${cloud.session?`<button class="tbtn sq" data-act="account-open" aria-label="Account and sync"><span class="avatar">${esc(((cloud.session.user.email||'?')[0]||'?').toUpperCase())}</span><i class="sdot s-${cloud.status}"></i></button>`:''}<button class="tbtn sq" data-act="settings-open" aria-label="Settings">${icon('gear')}</button></div>`;
+  <div class="top-act">${fox.on?`<button class="tbtn foxchip" data-act="fox-toggle" aria-label="Turn off ${esc(wakeName())}"><i></i><span class="lbl">${esc(wakeName())} is listening</span></button>`:''}<span class="tbtn pl-chip ${cls(total)}" id="pl-chip" title="Closed P&L across your live journals">${money(total)}</span>${cloud.session?`<button class="tbtn sq" data-act="account-open" aria-label="Account and sync"><span class="avatar">${esc(((cloud.session.user.email||'?')[0]||'?').toUpperCase())}</span><i class="sdot s-${cloud.status}"></i></button>`:''}<button class="tbtn sq" data-act="settings-open" aria-label="Settings">${icon('gear')}</button></div>`;
 }
 const renderSide2=()=>renderTop();
 function renderTabbar(){
@@ -3383,7 +3376,7 @@ function custHtml(j){
   <div><h4 class="sec-h">Accent color</h4><div class="row"><div class="sw">${ACCENTS.map(c=>`<button style="background:${c}" data-act="set-accent" data-c="${c}" ${d} aria-pressed="${j.accent===c}" aria-label="Accent ${c}"></button>`).join('')}</div><input type="color" data-cf="accent" ${d} value="${esc(j.accent)}" aria-label="Custom accent color"></div></div>
   <div><h4 class="sec-h">Banner</h4><div class="bn">${BANNERS.map((b,i)=>`<button style="background:${b}" data-act="set-banner" data-i="${i}" ${d} aria-pressed="${j.banner.type==='gradient'&&j.banner.value===b}" aria-label="Banner style ${i+1}"></button>`).join('')}</div>
    <div class="row" style="margin-top:10px"><label class="btn sm">Upload banner image or video<input type="file" accept="image/*,video/*" hidden data-cf="banner" ${d}></label>${j.banner.type==='image'||j.banner.type==='video'?`<button class="btn ghost sm" data-act="banner-clear" ${d}>Use a gradient instead</button>`:''}</div>
-   <p class="hint" style="margin:6px 0 0">You position and zoom images before they save, and animated GIF or WEBP files keep moving. Short video clips (muted, looping) work too and fill the banner as they are.</p></div>
+   <p class="hint" style="margin:6px 0 0">You position and zoom images before they save, and animated GIF or WEBP files keep moving. Short video clips (muted, looping) work too and fill the banner as they are. The banner is wide and short, so for it to show fully and clean, use a landscape image or video around 1600x400 (4:1).</p></div>
   <div><h4 class="sec-h">Background effect</h4><div class="seg" role="group" aria-label="Effect">${EFFECTS.map(e=>`<button data-act="set-effect" data-e="${e[0]}" ${d} aria-pressed="${j.effect===e[0]}">${e[1]}</button>`).join('')}</div></div>
   <div><h4 class="sec-h">Card density</h4><div class="seg" role="group" aria-label="Density"><button data-act="set-density" data-d="comfortable" ${d} aria-pressed="${j.density!=='compact'}">Comfortable</button><button data-act="set-density" data-d="compact" ${d} aria-pressed="${j.density==='compact'}">Compact</button></div></div>
   <div class="row" style="justify-content:space-between;border-top:1px solid var(--line);padding-top:16px"><span class="hint">Changes save as you make them.</span><button class="btn danger" data-act="del-journal" ${d}>Delete this journal</button></div>`;
@@ -3500,10 +3493,11 @@ function settingsHtml(){
    <p class="hint" style="margin:8px 0 0">This sets the app-wide button and highlight color, on top of any per-journal accent.</p></div>
   <div><h4 class="sec-h">Background</h4><p class="hint" style="margin:0 0 10px">The animated galaxy is the default. Swap it for your own still image or a looping video.</p>
    <div class="row"><button class="btn sm ${(!S.settings.bg||S.settings.bg.type==='galaxy')?'primary':''}" data-act="bg-galaxy" aria-pressed="${!S.settings.bg||S.settings.bg.type==='galaxy'}">Galaxy (default)</button><label class="btn sm">Upload image<input type="file" accept="image/*" hidden data-cf="bgimage"></label><label class="btn sm">Upload video<input type="file" accept="video/*" hidden data-cf="bgvideo"></label></div>
+   <p class="hint" style="margin:8px 0 0">It fills the whole screen and crops to fit, so for it to show fully and clean, use a landscape image or video around 1920x1080 (16:9).</p>
    ${S.settings.bg&&S.settings.bg.type!=='galaxy'&&S.settings.bg.mediaId?`<p class="hint" style="margin:8px 0 0">Using a custom ${S.settings.bg.type} background.</p>`:''}</div>
   <div class="row"><button class="btn ghost" data-act="appearance-reset">Revert appearance to default</button></div>
-  <div><h4 class="sec-h">Luma's voice</h4><p class="hint" style="margin:0 0 10px">Turn Luma on from the Backtest tab and say “Hey Luma”. She picks a female voice automatically. If yours sounds off, choose another one here. Chrome and Edge support always-on listening.</p>
-   <div class="row"><label class="f" style="min-width:240px">Voice<select data-in="voice-name"><option value="">Automatic (female)</option>${englishVoices().map(v=>`<option value="${esc(v.name)}" ${S.settings.voiceName===v.name?'selected':''}>${esc(v.name)}</option>`).join('')}</select></label><button class="btn" data-act="voice-test" style="align-self:flex-end">Test voice</button></div>
+  <div><h4 class="sec-h">Luma's voice</h4><p class="hint" style="margin:0 0 10px">Turn Luma on from the Backtest tab and say “Hey Luma”. She always speaks with Google UK English Female when it's available, or the closest female voice your browser offers. Chrome and Edge support always-on listening.</p>
+   <div class="row"><button class="btn" data-act="voice-test">Test voice</button></div>
    <div class="row" style="margin-top:12px"><span class="muted">Spoken replies</span><div class="seg" role="group" aria-label="Spoken replies"><button data-act="fox-speak" data-v="1" aria-pressed="${S.settings.foxSpeak!==false}">On</button><button data-act="fox-speak" data-v="0" aria-pressed="${S.settings.foxSpeak===false}">Off</button></div></div></div>
   ${embedded()?`<div><h4 class="sec-h">Microphone and screen sharing outside Claude</h4><p class="hint" style="margin:0 0 10px">Inside Claude, browsers block the microphone and screen sharing for embedded pages. The standalone file is the same app as a file you can open directly in Chrome or Edge, or upload to your own web host.</p><div class="row"><button class="btn primary" data-act="standalone-dl">Download standalone version</button><button class="btn ghost" data-act="perm-help">How it works</button></div></div>`:''}
   <div><h4 class="sec-h">AI access</h4><p class="hint" style="margin:0 0 10px">${esc(srcTxt)} Outside Claude, paste your own Anthropic API key and Ask AI, reviews, ${n} and walkthrough summaries use it. ${cloud.session?'The key is locked with your account password: it is encrypted on this device, never uploaded, and only works after you enter the password (it unlocks automatically when you sign in). If you change or reset your password, paste the key again.':'Create an account to lock the key with a password. Until then it is saved on this device as plain text.'} Requests go straight to Anthropic, billed to your API account.</p>
@@ -3657,7 +3651,6 @@ const A={
   'key-unlock':async()=>{if(await unlockKey()&&dlgKind==='settings'&&$('#dlgb'))$('#dlgb').innerHTML=settingsHtml()},
   'key-protect':async()=>{if(await lockPlainKey()&&dlgKind==='settings'&&$('#dlgb'))$('#dlgb').innerHTML=settingsHtml()},
   'key-clear':()=>{delete S.settings.apiKey;delete S.settings.apiKeyEnc;cloud.unlockedKey=null;persist();if(aiSource==='key'||aiSource==='locked'){AI=null;aiSource='';AICAPS=null}toast('API key removed.');if(dlgKind==='settings'&&$('#dlgb'))$('#dlgb').innerHTML=settingsHtml()},
-  'notifs-open':()=>{dlgKind='notifs';openDlg('Notifications',notifsHtml())},
   'account-open':()=>{dlgKind='account';openDlg('Account and sync',accountHtml())},
   'acct-sync':async()=>{cloud.dirty=true;await cloudPush(true);await cloudCheck()},
   'acct-conflict':()=>openConflict(),
@@ -3839,7 +3832,6 @@ function pageIn(el,type){
   if(k==='q'){fs(jFrom(el)).q=el.value;renderJBody();return}
   if(type!=='change')return;
   const v=el.value;
-  if(k==='voice-name'){S.settings.voiceName=v;persist();return}
   if(k==='dash-j')S.ui.dash.j=v;else if(k==='dash-cmp')S.ui.dash.cmp=v;else if(k==='dash-a')S.ui.dash.a=v;else if(k==='dash-b')S.ui.dash.b=v;
   else if(k==='hab-scope')S.ui.habScope=v;
   else if(k==='dcal-month'){if(/^\d{4}-\d{2}$/.test(v)){S.ui.dashCal=v+'-01';S.ui.dashDay=''}}
