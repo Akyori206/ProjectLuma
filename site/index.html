@@ -15,7 +15,7 @@
   padding-top:env(safe-area-inset-top,0px);
   padding-bottom:env(safe-area-inset-bottom,0px);
   --bg:#05070d;--panel:#0b0f1c;--panel2:#101528;--raised:#161d33;--line:#1b2236;--line2:#2a3454;--ink:#eef2ff;--ink2:#8891ae;
-  --win:#2ee89b;--loss:#ff4d6d;--amber:#ffb020;--accent:#3b82f6;--accent2:#8b5cf6;--accent-ink:#ffffff;
+  --win:#2ee89b;--loss:#ff4d6d;--amber:#ffb020;--accent:#3b82f6;--accent2:#8b5cf6;--accent-ink:#ffffff;--bg-dim:55%;
   --shadow:0 18px 50px rgba(0,0,0,.6);
   --glow:0 0 24px color-mix(in srgb,var(--accent) 45%,transparent);
   --display:'Space Grotesk','Inter',system-ui,sans-serif;--sans:'Inter',system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;--mono:'JetBrains Mono',ui-monospace,'SF Mono',Consolas,monospace;
@@ -42,7 +42,7 @@ body::before{content:"";position:fixed;inset:-4%;z-index:-3;pointer-events:none;
 #bgmedia{position:fixed;inset:0;z-index:-2;pointer-events:none;overflow:hidden;display:none}
 #bgmedia.on{display:block}
 #bgmedia img,#bgmedia video{width:100%;height:100%;object-fit:cover;display:block}
-#bgmedia::after{content:"";position:absolute;inset:0;background:color-mix(in srgb,var(--bg) 55%,transparent)}
+#bgmedia::after{content:"";position:absolute;inset:0;background:color-mix(in srgb,var(--bg) var(--bg-dim),transparent)}
 button,input,select,textarea{font:inherit;color:inherit}
 button{cursor:pointer}
 h1,h2,h3,h4{margin:0;font-weight:500}
@@ -117,6 +117,7 @@ input,select,textarea{background:var(--panel);border:1px solid var(--line);borde
 select{appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--ink2) 50%),linear-gradient(135deg,var(--ink2) 50%,transparent 50%);background-position:calc(100% - 17px) 55%,calc(100% - 12px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:32px}
 textarea{resize:vertical;min-height:90px;line-height:1.5}
 input[type=checkbox]{width:auto}
+input[type=range]{background:none;border:none;padding:0;accent-color:var(--accent);height:20px}
 input[type=color]{padding:2px;height:36px;width:48px}
 label.f{display:flex;flex-direction:column;gap:5px;font-size:13px;color:var(--ink2);font-weight:600}
 .badge{display:inline-block;border-radius:6px;padding:2px 8px;font-size:11px;font-weight:700;background:var(--raised);font-family:var(--mono);letter-spacing:.02em}
@@ -843,7 +844,7 @@ PD array: a price-delivery reference such as an FVG, order block, or liquidity l
 Displacement: a fast, strong directional move that often creates a fair value gap.
 Judas swing: an early, false move that sweeps liquidity before the real move happens.
 If they use a short technical term or abbreviation not on this list, keep their exact wording rather than guessing or replacing it with a different phrase.`;
-function defaultSettings(){return{symbol:'NQ',hotkey:'KeyV',wake:'fox',foxSpeak:true,owner:'J Soto',aiParse:true,minBefore:15,newsCountries:['USD'],newsImpact:['high','medium'],accounts:[],keywords:['rate','tariff','CPI'],bg:{type:'galaxy'}}}
+function defaultSettings(){return{symbol:'NQ',hotkey:'KeyV',wake:'fox',foxSpeak:true,owner:'J Soto',aiParse:true,minBefore:15,newsCountries:['USD'],newsImpact:['high','medium'],accounts:[],keywords:['rate','tariff','CPI'],bg:{type:'galaxy'},bgDim:55}}
 function baseHabits(){return [['Chased entry','#f2766b'],['Moved stop','#f0b04a'],['Oversized','#c084fc'],['Revenge trade','#fb7185'],['Exited early','#60a5fa'],['Ignored plan','#94a3b8']].map((h,i)=>({id:'h'+(i+1),name:h[0],color:h[1]}))}
 function monthStart(d){return iso(new Date(d.getFullYear(),d.getMonth(),1))}
 function newBtJournal(){return{id:'jbt',name:'Backtest Journal',icon:'🧪',accent:'#f5b731',banner:{type:'gradient',value:BANNERS[5]},effect:'grid',layout:'feed',density:'comfortable',kind:'backtest'}}
@@ -3277,6 +3278,7 @@ async function testApiKey(typed){
 
 /* ---------- CHROME: top bar, tab bar, render ---------- */
 function inkOn(hex){const m=/^#?([0-9a-f]{6})$/i.exec(hex||'');if(!m)return'#031017';const n=parseInt(m[1],16);const L=(0.299*(n>>16)+0.587*(n>>8&255)+0.114*(n&255))/255;return L>.6?'#031017':'#ffffff'}
+function cssVar(name,fallback){try{const v=getComputedStyle(document.documentElement).getPropertyValue(name).trim();return v||fallback}catch(e){return fallback}}
 function themeJournal(){return S.ui.view==='backtest'?btJournal():activeJournal()}
 function applyTheme(){
   const j=themeJournal(),root=document.documentElement;
@@ -3285,6 +3287,12 @@ function applyTheme(){
   root.style.setProperty('--accent',accent);root.style.setProperty('--accent-ink',inkOn(accent));
   if(S.settings&&S.settings.accent2)root.style.setProperty('--accent2',S.settings.accent2);
   else root.style.removeProperty('--accent2');
+  if(S.settings&&S.settings.panel)root.style.setProperty('--panel',S.settings.panel);
+  else root.style.removeProperty('--panel');
+  if(S.settings&&S.settings.panel2)root.style.setProperty('--panel2',S.settings.panel2);
+  else root.style.removeProperty('--panel2');
+  const dim=S.settings&&S.settings.bgDim!=null?S.settings.bgDim:55;
+  root.style.setProperty('--bg-dim',dim+'%');
   document.body.dataset.fx=j.effect||'none';document.body.dataset.density=j.density||'comfortable';
 }
 const NAV=[['dashboard','Dashboard'],['journal','Journal'],['backtest','Backtest'],['habits','Habits'],['news','News']];
@@ -3483,18 +3491,24 @@ function openTour(){
   if(S.ui.view!=='dashboard'){S.ui.view='dashboard';render()}
   tourReposition();
 }
+const bgDimPct=()=>S.settings&&S.settings.bgDim!=null?S.settings.bgDim:55;
 function settingsHtml(){
   const enc=!!S.settings.apiKeyEnc,plain=S.settings.apiKey,k=enc||!!plain,locked=aiSource==='locked';
   const srcTxt=aiSource==='claude'?'Connected through Claude.':aiSource==='key'?(enc?'Connected with your API key, unlocked for this session.':'Connected with your API key.'):locked?'Your API key is saved but locked. Enter your password to unlock it.':'Not connected. Quick answers from your own numbers still work.';
   const n=esc(wakeName());
   return `${cloud.session?`<div><h4 class="sec-h">Account</h4><p class="hint" style="margin:0 0 10px">Signed in as ${esc(cloud.session.user.email||'')}. ${esc(syncText())}</p><div class="row"><button class="btn" data-act="account-open">Account and sync</button></div></div>`:''}
-  <div><h4 class="sec-h">Appearance</h4><div class="seg" role="group" aria-label="Theme"><button data-act="set-theme" data-t="dark" aria-pressed="${S.ui.theme==='dark'}">Dark</button><button data-act="set-theme" data-t="light" aria-pressed="${S.ui.theme==='light'}">Light</button></div>
-   <div class="row" style="margin-top:14px"><label class="f">Button and accent color<input type="color" data-cf="app-accent" value="${esc(S.settings.accent||themeJournal().accent)}" aria-label="Accent color"></label><label class="f">Accent gradient (2nd color)<input type="color" data-cf="app-accent2" value="${esc(S.settings.accent2||'#8b5cf6')}" aria-label="Secondary accent color"></label></div>
-   <p class="hint" style="margin:8px 0 0">This sets the app-wide button and highlight color, on top of any per-journal accent.</p></div>
+  <div><h4 class="sec-h">Appearance</h4><p class="hint" style="margin:0 0 10px">Theme and color palette for the whole app.</p>
+   <div class="seg" role="group" aria-label="Theme"><button data-act="set-theme" data-t="dark" aria-pressed="${S.ui.theme==='dark'}">Dark</button><button data-act="set-theme" data-t="light" aria-pressed="${S.ui.theme==='light'}">Light</button></div>
+   <p class="hint" style="margin:16px 0 6px;font-weight:600;color:var(--ink)">Accent colors</p>
+   <div class="row"><label class="f">Button and accent color<input type="color" data-cf="app-accent" value="${esc(S.settings.accent||themeJournal().accent)}" aria-label="Accent color"></label><label class="f">Accent gradient (2nd color)<input type="color" data-cf="app-accent2" value="${esc(S.settings.accent2||'#8b5cf6')}" aria-label="Secondary accent color"></label></div>
+   <p class="hint" style="margin:8px 0 0">This sets the app-wide button and highlight color, on top of any per-journal accent.</p>
+   <p class="hint" style="margin:16px 0 6px;font-weight:600;color:var(--ink)">Widget colors</p>
+   <div class="row"><label class="f">Widget background<input type="color" data-cf="app-panel" value="${esc(S.settings.panel||cssVar('--panel','#0b0f1c'))}" aria-label="Widget background color"></label><label class="f">Widget background (gradient 2nd shade)<input type="color" data-cf="app-panel2" value="${esc(S.settings.panel2||cssVar('--panel2','#101528'))}" aria-label="Widget background gradient color"></label></div>
+   <p class="hint" style="margin:8px 0 0">Cards, panels, chips and dialogs use these two colors as their background.</p></div>
   <div><h4 class="sec-h">Background</h4><p class="hint" style="margin:0 0 10px">The animated galaxy is the default. Swap it for your own still image or a looping video.</p>
    <div class="row"><button class="btn sm ${(!S.settings.bg||S.settings.bg.type==='galaxy')?'primary':''}" data-act="bg-galaxy" aria-pressed="${!S.settings.bg||S.settings.bg.type==='galaxy'}">Galaxy (default)</button><label class="btn sm">Upload image<input type="file" accept="image/*" hidden data-cf="bgimage"></label><label class="btn sm">Upload video<input type="file" accept="video/*" hidden data-cf="bgvideo"></label></div>
    <p class="hint" style="margin:8px 0 0">It fills the whole screen and crops to fit, so for it to show fully and clean, use a landscape image or video around 1920x1080 (16:9).</p>
-   ${S.settings.bg&&S.settings.bg.type!=='galaxy'&&S.settings.bg.mediaId?`<p class="hint" style="margin:8px 0 0">Using a custom ${S.settings.bg.type} background.</p>`:''}</div>
+   ${S.settings.bg&&S.settings.bg.type!=='galaxy'&&S.settings.bg.mediaId?`<div class="row" style="margin-top:12px"><label class="f" style="flex:1"><span style="display:flex;justify-content:space-between">Dim overlay<span class="muted" id="bgdimval">${bgDimPct()}%</span></span><input type="range" min="0" max="90" step="5" value="${bgDimPct()}" data-cf="bg-dim" aria-label="Background dim amount"></label></div><p class="hint" style="margin:6px 0 0">Lower this to lighten your background image; raise it to dim it for readability. Using a custom ${S.settings.bg.type} background.</p>`:''}</div>
   <div class="row"><button class="btn ghost" data-act="appearance-reset">Revert appearance to default</button></div>
   <div><h4 class="sec-h">Luma's voice</h4><p class="hint" style="margin:0 0 10px">Turn Luma on from the Backtest tab and say “Hey Luma”. She always speaks with Google UK English Female when it's available, or the closest female voice your browser offers. Chrome and Edge support always-on listening.</p>
    <div class="row"><button class="btn" data-act="voice-test">Test voice</button></div>
@@ -3544,7 +3558,7 @@ const A={
   'appearance-reset':async()=>{
     if(!await ask('Revert appearance to default?',{confirmOnly:true,message:'This resets the app accent colors and background back to the defaults. Per-journal customization (icons, banners) is not affected.',okLabel:'Revert'}))return;
     const old=S.settings.bg&&S.settings.bg.mediaId;
-    delete S.settings.accent;delete S.settings.accent2;S.settings.bg={type:'galaxy'};
+    delete S.settings.accent;delete S.settings.accent2;delete S.settings.panel;delete S.settings.panel2;S.settings.bg={type:'galaxy'};S.settings.bgDim=55;
     if(old)media.del(old);
     persist();applyTheme();applyBackground();drawSettings();render();
   },
@@ -3791,6 +3805,22 @@ function custField(el,type){
   }
   if(f==='app-accent2'){
     if(type==='input'||type==='change'){S.settings.accent2=el.value;applyTheme();if(type==='change'){persist();drawSettings()}else saveSoon()}
+    return;
+  }
+  if(f==='app-panel'){
+    if(type==='input'||type==='change'){S.settings.panel=el.value;applyTheme();if(type==='change'){persist();drawSettings()}else saveSoon()}
+    return;
+  }
+  if(f==='app-panel2'){
+    if(type==='input'||type==='change'){S.settings.panel2=el.value;applyTheme();if(type==='change'){persist();drawSettings()}else saveSoon()}
+    return;
+  }
+  if(f==='bg-dim'){
+    if(type==='input'||type==='change'){
+      S.settings.bgDim=Number(el.value);applyTheme();
+      const lbl=$('#bgdimval');if(lbl)lbl.textContent=S.settings.bgDim+'%';
+      if(type==='change'){persist();drawSettings()}else saveSoon()
+    }
     return;
   }
   if(f==='bgimage'||f==='bgvideo'){
